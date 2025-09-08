@@ -1,0 +1,873 @@
+/* --- Universal and Base Styles --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Header and Navigation --- */
+.main-header {
+    background: #ffffff;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.main-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #004d40;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-links li {
+    margin-left: 25px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #00796b;
+}
+
+/* --- Buttons --- */
+.btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #00796b;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #004d40;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #00796b;
+    border: 2px solid #00796b;
+}
+
+.btn-secondary:hover {
+    background-color: #00796b;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.btn-logout {
+    background-color: #d32f2f;
+    color: #ffffff;
+}
+
+.btn-logout:hover {
+    background-color: #b71c1c;
+}
+
+/* --- Hero Section (for home.html) --- */
+.hero-section {
+    background: #e0f2f1;
+    color: #004d40;
+    text-align: center;
+    padding: 6rem 20px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Features Section (for home.html) --- */
+.features-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 4rem 20px;
+    background: #f4f7f6;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.feature-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card i {
+    font-size: 3rem;
+    color: #00796b;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #004d40;
+}
+
+/* --- Form Pages Styling (login, signup, onboarding, forgot-password) --- */
+.form-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e0f2f1;
+    padding: 20px;
+}
+
+.form-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.form-logo {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #004d40;
+    text-decoration: none;
+    margin-bottom: 2rem;
+}
+
+.form-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #00796b;
+}
+
+.input-group input[disabled] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
+.btn-full-width {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.form-text {
+    margin-top: 1.5rem;
+    color: #666;
+}
+
+.form-text a {
+    color: #00796b;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-text a:hover {
+    text-decoration: underline;
+}
+
+/* --- Dashboard Page Styling --- */
+.dashboard-main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.dashboard-header {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 30px;
+    border: 4px solid #00796b;
+}
+
+.user-details h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.user-details p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.dashboard-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.dashboard-card {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-card h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    margin-bottom: 15px;
+}
+
+.dashboard-card p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.dashboard-card h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-card h3 i {
+    margin-right: 10px;
+    color: #00796b;
+}
+
+.feature-list {
+    list-style: none;
+    text-align: left;
+    margin: 20px 0;
+}
+
+.feature-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-list a {
+    text-decoration: none;
+    color: #00796b;
+    font-weight: 600;
+}
+
+.spotlight-content {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spotlight-pfp {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #00796b;
+}
+
+.spotlight-content h4 {
+    font-size: 1.2rem;
+    color: #004d40;
+    margin-bottom: 5px;
+}
+
+.spotlight-content p {
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.dashboard-card .btn {
+    margin-top: 20px;
+    display: inline-block;
+    width: auto;
+}
+
+/* --- Profile Pages Styling --- */
+.profile-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding: 20px;
+}
+
+.profile-container {
+    display: flex;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.profile-sidebar {
+    width: 250px;
+    background-color: #f8f8f8;
+    padding: 30px;
+    border-right: 1px solid #eee;
+}
+
+.profile-sidebar h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    margin-bottom: 20px;
+}
+
+.profile-nav ul {
+    list-style: none;
+}
+
+.profile-nav a {
+    display: block;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-nav a:hover {
+    background-color: #e0f2f1;
+}
+
+.profile-nav a.active {
+    background-color: #00796b;
+    color: #ffffff;
+}
+
+.profile-content {
+    flex: 1;
+    padding: 40px;
+}
+
+.profile-content h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.profile-page {
+    display: none;
+}
+
+.profile-page.active {
+    display: block;
+}
+
+.form-section {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #eee;
+}
+
+.form-section h3 {
+    font-size: 1.2rem;
+    color: #004d40;
+    border-bottom: 2px solid #e0f2f1;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .input-group {
+    flex: 1;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #00796b;
+    box-shadow: 0 0 5px rgba(0, 121, 107, 0.3);
+}
+
+.input-group input[disabled] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
+.input-group textarea {
+    resize: vertical;
+}
+
+.profile-pic-section {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-pic-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #00796b;
+    margin-bottom: 20px;
+}
+
+#upload-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+/* --- Directory Page Styling --- */
+.directory-main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.directory-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.directory-header h2 {
+    font-size: 2.5rem;
+    color: #004d40;
+    margin-bottom: 10px;
+}
+
+.directory-header p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#directory-search {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ccc;
+    border-radius: 50px 0 0 50px;
+    font-size: 1rem;
+    outline: none;
+    border-right: none;
+}
+
+#search-btn {
+    padding: 12px 20px;
+    background-color: #00796b;
+    color: white;
+    border: 1px solid #00796b;
+    border-left: none;
+    border-radius: 0 50px 50px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#search-btn:hover {
+    background-color: #004d40;
+}
+
+.alumni-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.alumnus-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alumnus-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.alumnus-card-header {
+    background-color: #e0f2f1;
+    padding: 20px 0 0;
+}
+
+.alumnus-pfp {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #00796b;
+}
+
+.alumnus-card-body {
+    padding: 20px;
+}
+
+.alumnus-card-body h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #004d40;
+}
+
+.alumnus-card-body p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.alumnus-card .btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+.info-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #777;
+    margin-top: 50px;
+    width: 100%;
+}
+
+/* --- New: Campaigns Section --- */
+.campaigns-section {
+    padding: 6rem 20px;
+    text-align: center;
+    background-color: #ffffff;
+}
+
+.campaigns-section h2 {
+    font-size: 2.5rem;
+    color: #004d40;
+    margin-bottom: 10px;
+}
+
+.campaigns-section p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.campaigns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.campaign-card {
+    background: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campaign-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.campaign-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.campaign-content {
+    padding: 20px;
+}
+
+.campaign-content h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    margin-bottom: 10px;
+}
+
+.campaign-content p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.campaign-progress {
+    margin-bottom: 15px;
+}
+
+.campaign-progress progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    border: none;
+    background-color: #e0e0e0;
+}
+
+.campaign-progress progress::-webkit-progress-bar {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+}
+
+.campaign-progress progress::-webkit-progress-value {
+    background-color: #00796b;
+    border-radius: 5px;
+}
+
+.campaign-progress p {
+    font-size: 0.9rem;
+    color: #555;
+    text-align: right;
+    margin-top: 5px;
+}
+
+/* --- View Profile Page Styling --- */
+.profile-main-view {
+    padding: 20px;
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.profile-container-view {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+
+.profile-header-view {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-pic-view {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #00796b;
+}
+
+.profile-header-view h2 {
+    font-size: 2.5rem;
+    color: #004d40;
+    margin-top: 15px;
+}
+
+.profile-header-view .profile-subheader {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+}
+
+.profile-section h3 {
+    font-size: 1.5rem;
+    color: #004d40;
+    border-bottom: 2px solid #e0f2f1;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.profile-section h3 i {
+    margin-right: 10px;
+}
+
+.profile-section p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.profile-section strong {
+    color: #333;
+}
+
+.link-styled {
+    color: #00796b;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-styled:hover {
+    text-decoration: underline;
+}
+
+.profile-content-view {
+    /* Set a max width to prevent it from stretching too wide on large screens */
+    max-width: 800px; 
+    /* Center the block itself within its parent container */
+    margin: 20px auto; 
+    /* Add padding for better spacing */
+    padding: 20px;
+    /* Center the text and block elements inside this container */
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header-view {
+    text-align: center; /* Ensures the image and text are centered */
+}
+
+/* Also, update the profile image to be a block element so it can be centered with margin: auto */
+.profile-pic {
+    display: block;
+    margin: 0 auto 20px auto; /* Centers the image */
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+}
+
+/* --- Footer --- */
+.main-footer {
+    background: #004d40;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem 0;
+}

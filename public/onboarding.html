@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Connect - Onboarding</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="form-body">
+    <div class="form-container">
+        <a href="index.html" class="form-logo">Alumni Connect</a>
+        <h2>Tell Us More About You</h2>
+        <p>Complete your profile to get the most out of our community.</p>
+        <form id="onboarding-form">
+            <div class="input-group">
+                <label for="university">University/College</label>
+                <input type="text" id="university" name="university" required>
+            </div>
+            <div class="input-group">
+                <label for="university-email">University Email</label>
+                <input type="email" id="university-email" name="university-email" required>
+            </div>
+            <div class="input-group">
+                <label for="city">Current City</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+            <div class="input-group">
+                <label for="company">Current Company</label>
+                <input type="text" id="company" name="company" required>
+            </div>
+            <div class="input-group">
+                <label for="current-job">Current Job Title</label>
+                <input type="text" id="current-job" name="current-job" required>
+            </div>
+            <div class="input-group">
+                <label for="note">A short note about yourself</label>
+                <textarea id="note" name="note" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full-width">Complete Onboarding</button>
+        </form>
+    </div>
+    <script src="onboarding.js"></script>
+</body>
+</html>

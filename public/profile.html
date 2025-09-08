@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Connect - Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="main-nav">
+            <a href="index.html" class="logo">Alumni Connect</a>
+            <ul class="nav-links">
+                </ul>
+        </nav>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <h3>Profile</h3>
+                <nav class="profile-nav">
+                    <ul>
+                        <li><a href="#personal" class="active" data-page="personal-info">Personal Info</a></li>
+                        <li><a href="#professional" data-page="professional-info">Professional Info</a></li>
+                        <li><a href="#academic" data-page="academic-info">Academic Info</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="profile-content">
+                <h2>Your Profile</h2>
+                <form id="profile-form" enctype="multipart/form-data">
+                    <div class="form-section profile-pic-section">
+                        <h3>Profile Picture</h3>
+                        <div class="profile-pic-container">
+                            <img id="profile-pic-preview" src="default_pfp.jpg" alt="Profile Picture" class="profile-pic">
+                            <input type="file" id="pfp-upload" name="profile_picture" accept="image/*" style="display: none;">
+                            <button type="button" id="upload-btn" class="btn btn-secondary">Upload New Picture</button>
+                        </div>
+                    </div>
+                    <div id="personal-info" class="profile-page active">
+                        <div class="form-section">
+                            <h3>Personal Information</h3>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="full-name">Full Name</label>
+                                    <input type="text" id="full-name" name="full-name" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="bio">Bio</label>
+                                <textarea id="bio" name="bio" rows="4" placeholder="Tell us a little about yourself..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="professional-info" class="profile-page">
+                        <div class="form-section">
+                            <h3>Professional Information</h3>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="current-company">Current Company</label>
+                                    <input type="text" id="current-company" name="current-company">
+                                </div>
+                                <div class="input-group">
+                                    <label for="job-title">Job Title</label>
+                                    <input type="text" id="job-title" name="job-title">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city">
+                                </div>
+                                <div class="input-group">
+                                    <label for="linkedin">LinkedIn URL</label>
+                                    <input type="text" id="linkedin" name="linkedin">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="academic-info" class="profile-page">
+                        <div class="form-section">
+                            <h3>Academic Information</h3>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="university">University</label>
+                                    <input type="text" id="university" name="university">
+                                </div>
+                                <div class="input-group">
+                                    <label for="major">Major</label>
+                                    <input type="text" id="major" name="major" placeholder="e.g., Computer Science">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="graduation-year">Graduation Year</label>
+                                    <input type="text" id="graduation-year" name="graduation-year" placeholder="e.g., 2020">
+                                </div>
+                                <div class="input-group">
+                                    <label for="degree">Degree</label>
+                                    <input type="text" id="degree" name="degree" placeholder="e.g., B.S.">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full-width">Save Profile</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <p>&copy; 2025 Alumni Connect. All rights reserved.</p>
+    </footer>
+    <script src="profile.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Profile - Alumni Connect</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="main-nav">
+            <a href="index.html" class="logo">Alumni Connect</a>
+            <ul class="nav-links">
+                </ul>
+        </nav>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-container">
+            <div class="profile-content-view">
+                <div id="profile-details-container">
+                    <div class="profile-header-view">
+                        <img id="profile-pic-view" src="default_pfp.jpg" alt="Profile Picture" class="profile-pic">
+                        <h2 id="profile-name"></h2>
+                        <p id="profile-job-company" class="profile-subheader"></p>
+                    </div>
+
+                    <div class="profile-section">
+                        <h3><i class="fas fa-graduation-cap"></i> Academic Information</h3>
+                        <p><strong>University:</strong> <span id="profile-university"></span></p>
+                        <p><strong>Major:</strong> <span id="profile-major"></span></p>
+                        <p><strong>Graduation Year:</strong> <span id="profile-grad-year"></span></p>
+                    </div>
+
+                    <div class="profile-section">
+                        <h3><i class="fas fa-info-circle"></i> About Me</h3>
+                        <p id="profile-bio"></p>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h3><i class="fas fa-address-card"></i> Contact & Location</h3>
+                        <p><strong>City:</strong> <span id="profile-city"></span></p>
+                        <p><strong>LinkedIn:</strong> <a href="#" id="profile-linkedin" target="_blank" class="link-styled"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Alumni Connect. All rights reserved.</p>
+    </footer>
+
+    <script src="view-profile.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
