@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumni Connect - Profile</title>
+    <title>User Profile</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    
     <header class="main-header">
-        <nav class="main-nav">
-            <a href="index.html" class="logo">Alumni Connect</a>
-            <ul class="nav-links">
+        <nav class="main-nav container">
+            <a href="index.html" class="logo">AlumniConnect</a>
+            <ul id="nav-links" class="nav-links">
                 </ul>
         </nav>
     </header>
@@ -19,33 +20,34 @@
     <main class="profile-main">
         <div class="profile-container">
             <div class="profile-sidebar">
-                <h3>Profile</h3>
+                <h3>Settings</h3>
                 <nav class="profile-nav">
                     <ul>
-                        <li><a href="#personal" class="active" data-page="personal-info">Personal Info</a></li>
-                        <li><a href="#professional" data-page="professional-info">Professional Info</a></li>
-                        <li><a href="#academic" data-page="academic-info">Academic Info</a></li>
+                        <li><a href="#" class="profile-link active" data-tab="edit-profile">Edit Profile</a></li>
+                        <li><a href="#" class="profile-link" data-tab="change-password">Change Password</a></li>
+                        <li><a href="#" class="profile-link" data-tab="privacy-settings">Privacy Settings</a></li>
                     </ul>
                 </nav>
             </div>
+
             <div class="profile-content">
-                <h2>Your Profile</h2>
-                <form id="profile-form" enctype="multipart/form-data">
-                    <div class="form-section profile-pic-section">
-                        <h3>Profile Picture</h3>
-                        <div class="profile-pic-container">
-                            <img id="profile-pic-preview" src="default_pfp.jpg" alt="Profile Picture" class="profile-pic">
-                            <input type="file" id="pfp-upload" name="profile_picture" accept="image/*" style="display: none;">
-                            <button type="button" id="upload-btn" class="btn btn-secondary">Upload New Picture</button>
+                <div id="edit-profile" class="profile-page active">
+                    <h2>Edit Profile</h2>
+                    <form id="profile-form">
+                        <div class="profile-pic-section">
+                            <img id="profile-pic" class="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
+                            <div class="profile-pic-container">
+                                <label for="profile_picture" class="btn btn-secondary" id="upload-btn">Upload New Picture</label>
+                                <input type="file" id="profile_picture" name="profile_picture" accept="image/*" style="display:none;">
+                            </div>
                         </div>
-                    </div>
-                    <div id="personal-info" class="profile-page active">
+
                         <div class="form-section">
-                            <h3>Personal Information</h3>
+                            <h3>Basic Information</h3>
                             <div class="form-row">
                                 <div class="input-group">
-                                    <label for="full-name">Full Name</label>
-                                    <input type="text" id="full-name" name="full-name" required>
+                                    <label for="full_name">Full Name</label>
+                                    <input type="text" id="full_name" name="full_name" disabled>
                                 </div>
                                 <div class="input-group">
                                     <label for="email">Email Address</label>
@@ -54,69 +56,99 @@
                             </div>
                             <div class="input-group">
                                 <label for="bio">Bio</label>
-                                <textarea id="bio" name="bio" rows="4" placeholder="Tell us a little about yourself..."></textarea>
+                                <textarea id="bio" name="bio" rows="4"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="linkedin">LinkedIn Profile URL</label>
+                                <input type="url" id="linkedin" name="linkedin">
                             </div>
                         </div>
-                    </div>
-                    <div id="professional-info" class="profile-page">
+
                         <div class="form-section">
-                            <h3>Professional Information</h3>
+                            <h3>Professional & Academic Details</h3>
                             <div class="form-row">
                                 <div class="input-group">
-                                    <label for="current-company">Current Company</label>
-                                    <input type="text" id="current-company" name="current-company">
+                                    <label for="current_company">Current Company</label>
+                                    <input type="text" id="current_company" name="current_company">
                                 </div>
                                 <div class="input-group">
-                                    <label for="job-title">Job Title</label>
-                                    <input type="text" id="job-title" name="job-title">
+                                    <label for="job_title">Job Title</label>
+                                    <input type="text" id="job_title" name="job_title">
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="city">City</label>
-                                    <input type="text" id="city" name="city">
-                                </div>
-                                <div class="input-group">
-                                    <label for="linkedin">LinkedIn URL</label>
-                                    <input type="text" id="linkedin" name="linkedin">
-                                </div>
+                            <div class="input-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city">
                             </div>
-                        </div>
-                    </div>
-                    <div id="academic-info" class="profile-page">
-                        <div class="form-section">
-                            <h3>Academic Information</h3>
                             <div class="form-row">
                                 <div class="input-group">
                                     <label for="university">University</label>
-                                    <input type="text" id="university" name="university">
+                                    <input type="text" id="university" name="university" disabled>
                                 </div>
                                 <div class="input-group">
-                                    <label for="major">Major</label>
-                                    <input type="text" id="major" name="major" placeholder="e.g., Computer Science">
+                                    <label for="graduation_year">Graduation Year</label>
+                                    <input type="text" id="graduation_year" name="graduation_year" disabled>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="input-group">
-                                    <label for="graduation-year">Graduation Year</label>
-                                    <input type="text" id="graduation-year" name="graduation-year" placeholder="e.g., 2020">
+                                    <label for="degree">Degree</label>
+                                    <input type="text" id="degree" name="degree" disabled>
                                 </div>
                                 <div class="input-group">
-                                    <label for="degree">Degree</label>
-                                    <input type="text" id="degree" name="degree" placeholder="e.g., B.S.">
+                                    <label for="major">Major</label>
+                                    <input type="text" id="major" name="major" disabled>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full-width">Save Profile</button>
-                </form>
+                        
+                        <div id="message" class="form-message"></div>
+                        <button type="submit" class="btn btn-primary btn-full-width">Save Changes</button>
+                    </form>
+                </div>
+
+                <div id="change-password" class="profile-page">
+                    <h2>Change Password</h2>
+                    <form id="password-form">
+                        <div class="input-group">
+                            <label for="current-password">Current Password</label>
+                            <input type="password" id="current-password" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="confirm-password">Confirm New Password</label>
+                            <input type="password" id="confirm-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full-width">Change Password</button>
+                    </form>
+                </div>
+
+                <div id="privacy-settings" class="profile-page">
+                    <h2>Privacy Settings</h2>
+                    <form id="privacy-form">
+                        <div class="input-group">
+                            <label><input type="checkbox" id="email-visible"> Make my email visible in the directory</label>
+                        </div>
+                        <div class="input-group">
+                            <label><input type="checkbox" id="profile-public"> Make my profile public</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full-width">Save Settings</button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
+    
     <footer class="main-footer">
-        <p>&copy; 2025 Alumni Connect. All rights reserved.</p>
+        <div class="container">
+            <p>&copy; 2024 AlumniConnect. All Rights Reserved.</p>
+        </div>
     </footer>
-    <script src="profile.js"></script>
+    
     <script src="auth.js"></script>
+    <script src="profile.js"></script>
 </body>
 </html>

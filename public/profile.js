@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const uploadBtn = document.getElementById('upload-btn');
     const pfpUpload = document.getElementById('pfp-upload');
 
+    // Display message function
+    const displayMessage = (message, type = 'error') => {
+        const messageContainer = document.createElement('div');
+        messageContainer.textContent = message;
+        messageContainer.classList.add('form-message', type);
+        form.prepend(messageContainer);
+        setTimeout(() => messageContainer.remove(), 5000);
+    };
+
     if (!userEmail) {
         window.location.href = 'login.html';
         return;
@@ -67,11 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } else {
                 console.error('Error fetching profile data:', data.message);
-                alert('Failed to load profile data.');
+                displayMessage('Failed to load profile data.');
             }
         } catch (error) {
             console.error('Network error:', error);
-            alert('An error occurred while fetching profile data.');
+            displayMessage('An error occurred while fetching profile data.');
         }
     };
 
@@ -80,8 +89,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // New Validation Logic
+        const graduationYear = document.getElementById('graduation-year').value;
+        const linkedinUrl = document.getElementById('linkedin').value;
+
+        // Check if graduation year is a 4-digit number
+        if (graduationYear && !/^\d{4}$/.test(graduationYear)) {
+            displayMessage('Graduation Year must be a 4-digit number (e.g., 2024).');
+            return;
+        }
+
+        // Check if LinkedIn URL is a valid format
+        if (linkedinUrl && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.*/i.test(linkedinUrl)) {
+            displayMessage('Please enter a valid LinkedIn URL.');
+            return;
+        }
+
         const formData = new FormData(form);
-        // Exclude the disabled email field from the FormData
         formData.delete('email');
 
         const file = pfpUpload.files[0];
@@ -98,13 +122,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
+                displayMessage(data.message, 'success');
             } else {
-                alert(data.message);
+                displayMessage(data.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while saving your profile.');
+            displayMessage('An error occurred while saving your profile.');
         }
     });
 });

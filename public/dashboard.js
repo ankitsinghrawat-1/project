@@ -1,31 +1,37 @@
+/* --- dashboard.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
-    const userNameEl = document.getElementById('user-name');
-    const userEmail = localStorage.getItem('userEmail');
-    const dashboardProfilePic = document.getElementById('profile-pic-dash');
+    const userEmail = sessionStorage.getItem('loggedInUserEmail');
+    const userRole = sessionStorage.getItem('userRole');
 
     if (!userEmail) {
         window.location.href = 'login.html';
         return;
     }
 
+    if (userRole === 'admin') {
+        window.location.href = 'admin.html';
+        return;
+    }
+
     const fetchUserProfile = async () => {
         try {
             const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`);
-            const data = await response.json();
-            if (response.ok) {
-                userNameEl.textContent = data.full_name || 'Alumnus';
-                if (data.profile_pic_url) {
-                    dashboardProfilePic.src = `http://localhost:3000/${data.profile_pic_url}`;
-                } else {
-                    dashboardProfilePic.src = 'default_pfp.jpg';
-                }
+            if (!response.ok) {
+                throw new Error('Failed to fetch profile');
+            }
+            const user = await response.json();
+            
+            document.getElementById('profile-name').textContent = user.full_name;
+            document.getElementById('profile-info').textContent = `${user.job_title} at ${user.current_company}`;
+            
+            const profilePic = document.getElementById('profile-pic');
+            if (user.profile_pic_url) {
+                profilePic.src = `http://localhost:3000/${user.profile_pic_url}`;
             } else {
-                console.error('Error fetching user profile:', data.message);
-                userNameEl.textContent = 'Alumnus';
+                profilePic.src = 'https://via.placeholder.com/150';
             }
         } catch (error) {
-            console.error('Network error:', error);
-            userNameEl.textContent = 'Alumnus';
+            console.error('Error fetching user profile:', error);
         }
     };
 
@@ -33,12 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await fetch('http://localhost:3000/api/events/recent');
             const events = await response.json();
-            const eventsList = document.getElementById('events-list');
+            const eventsList = document.getElementById('recent-events-list');
             eventsList.innerHTML = '';
             if (events.length > 0) {
                 events.forEach(event => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${event.title}</strong><br>${event.date}<br><a href="#">${event.location}</a>`;
+                    li.innerHTML = `<strong>${event.title}</strong> - ${event.location} <br><small>${event.date}</small>`;
                     eventsList.appendChild(li);
                 });
             } else {
@@ -46,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (error) {
             console.error('Error fetching events:', error);
-            document.getElementById('events-list').innerHTML = '<li>Failed to load events.</li>';
         }
     };
 
@@ -54,53 +59,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await fetch('http://localhost:3000/api/jobs/recent');
             const jobs = await response.json();
-            const jobsList = document.getElementById('jobs-list');
+            const jobsList = document.getElementById('recent-jobs-list');
             jobsList.innerHTML = '';
             if (jobs.length > 0) {
                 jobs.forEach(job => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${job.title}</strong> at ${job.company}<br>${job.location}`;
+                    li.innerHTML = `<strong>${job.title}</strong> at ${job.company} <br><small>${job.location}</small>`;
                     jobsList.appendChild(li);
                 });
             } else {
-                jobsList.innerHTML = '<li>No recent jobs to display.</li>';
+                jobsList.innerHTML = '<li>No recent job postings to display.</li>';
             }
         } catch (error) {
             console.error('Error fetching jobs:', error);
-            document.getElementById('jobs-list').innerHTML = '<li>Failed to load jobs.</li>';
         }
     };
 
-    const fetchAlumniSpotlight = async () => {
-        try {
-            const response = await fetch('http://localhost:3000/api/spotlight');
-            const spotlight = await response.json();
-            if (response.ok && spotlight) {
-                document.getElementById('spotlight-name').textContent = spotlight.full_name;
-                document.getElementById('spotlight-bio').textContent = spotlight.bio;
-                if (spotlight.profile_pic_url) {
-                    document.getElementById('spotlight-pfp').src = `http://localhost:3000/${spotlight.profile_pic_url}`;
-                } else {
-                    document.getElementById('spotlight-pfp').src = 'default_pfp.jpg';
-                }
-            } else {
-                console.error('Error fetching spotlight:', spotlight.message);
-                document.getElementById('alumni-card').style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Network error:', error);
-            document.getElementById('alumni-card').style.display = 'none';
-        }
-    };
-
-    await fetchUserProfile();
-    await fetchRecentEvents();
-    await fetchRecentJobs();
-    await fetchAlumniSpotlight();
-});
-
-document.querySelector('.btn-logout').addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.removeItem('userEmail');
-    window.location.href = 'login.html';
+    fetchUserProfile();
+    fetchRecentEvents();
+    fetchRecentJobs();
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -19,27 +19,25 @@
 
     <main class="dashboard-main">
         <div class="dashboard-container">
-            <section class="dashboard-profile-section">
-                <img id="profile-pic" class="dashboard-profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
-                <h2 id="profile-name"></h2>
-                <p id="profile-info"></p>
-                <a href="profile.html" class="btn btn-secondary">Edit Profile</a>
-            </section>
+            <h2>Admin Dashboard</h2>
+            <div class="admin-actions">
+                <a href="add-event.html" class="btn btn-primary">Add New Event</a>
+                <a href="add-job.html" class="btn btn-secondary">Add New Job</a>
+            </div>
             
-            <section class="dashboard-section">
-                <h3>Recent Events</h3>
+            <section class="admin-section">
+                <h3>Recently Added Events</h3>
                 <ul id="recent-events-list" class="dashboard-list">
                     </ul>
                 <a href="events.html" class="view-all-link">View All Events &rarr;</a>
             </section>
             
-            <section class="dashboard-section">
-                <h3>Recent Job Postings</h3>
+            <section class="admin-section">
+                <h3>Recently Added Jobs</h3>
                 <ul id="recent-jobs-list" class="dashboard-list">
                     </ul>
                 <a href="jobs.html" class="view-all-link">View All Jobs &rarr;</a>
             </section>
-            
         </div>
     </main>
     
@@ -48,8 +46,8 @@
             <p>&copy; 2024 AlumniConnect. All Rights Reserved.</p>
         </div>
     </footer>
-    
+
     <script src="auth.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

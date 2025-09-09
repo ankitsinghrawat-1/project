@@ -1,40 +1,54 @@
+/* --- view-profile.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(window.location.search);
-    const email = params.get('email');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userEmail = urlParams.get('email');
 
-    if (!email) {
-        document.getElementById('profile-details-container').innerHTML = '<p class="error-message">User profile not found.</p>';
+    if (!userEmail) {
+        document.querySelector('.profile-container-view').innerHTML = '<div class="info-message">User not found.</div>';
         return;
     }
 
-    try {
-        const response = await fetch(`http://localhost:3000/api/public-profile/${email}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            document.getElementById('profile-pic-view').src = data.profile_pic_url ? `http://localhost:3000/${data.profile_pic_url}` : 'default_pfp.jpg';
-            document.getElementById('profile-name').textContent = data.full_name || 'N/A';
-            document.getElementById('profile-job-company').textContent = data.job_title && data.current_company ? `${data.job_title} at ${data.current_company}` : 'N/A';
-            document.getElementById('profile-university').textContent = data.university || 'N/A';
-            document.getElementById('profile-major').textContent = data.major || 'N/A';
-            document.getElementById('profile-grad-year').textContent = data.graduation_year || 'N/A';
-            document.getElementById('profile-bio').textContent = data.bio || 'No bio available.';
-            document.getElementById('profile-city').textContent = data.city || 'N/A';
+    const fetchUserProfile = async (email) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/profile/${email}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user profile');
+            }
+            const user = await response.json();
             
-            const linkedinLink = document.getElementById('profile-linkedin');
-            if (data.linkedin) {
-                linkedinLink.href = data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`;
-                linkedinLink.textContent = data.linkedin;
+            document.getElementById('profile-name-view').textContent = user.full_name || 'N/A';
+            document.getElementById('profile-subheader').textContent = `${user.job_title || 'N/A'} at ${user.current_company || 'N/A'}`;
+            document.getElementById('bio-view').textContent = user.bio || 'No bio available.';
+            document.getElementById('university-view').textContent = user.university || 'N/A';
+            document.getElementById('graduation-year-view').textContent = user.graduation_year || 'N/A';
+            document.getElementById('degree-view').textContent = user.degree || 'N/A';
+            document.getElementById('major-view').textContent = user.major || 'N/A';
+            document.getElementById('current-company-view').textContent = user.current_company || 'N/A';
+            document.getElementById('job-title-view').textContent = user.job_title || 'N/A';
+            document.getElementById('city-view').textContent = user.city || 'N/A';
+            
+            const linkedinLink = document.getElementById('linkedin-view');
+            if (user.linkedin) {
+                linkedinLink.href = user.linkedin;
+                linkedinLink.textContent = user.linkedin;
             } else {
                 linkedinLink.textContent = 'N/A';
-                linkedinLink.href = '#';
+            }
+            
+            document.getElementById('email-view').textContent = user.university_email || 'N/A';
+
+            const profilePic = document.getElementById('profile-pic-view');
+            if (user.profile_pic_url) {
+                profilePic.src = `http://localhost:3000/${user.profile_pic_url}`;
+            } else {
+                profilePic.src = 'https://via.placeholder.com/150';
             }
 
-        } else {
-            document.getElementById('profile-details-container').innerHTML = `<p class="error-message">${data.message}</p>`;
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            document.querySelector('.profile-container-view').innerHTML = `<div class="info-message">Could not load profile.</div>`;
         }
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        document.getElementById('profile-details-container').innerHTML = '<p class="error-message">Failed to load profile. Please try again later.</p>';
-    }
+    };
+
+    fetchUserProfile(userEmail);
 });

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('signup-form');
-    const fullNameInput = document.getElementById('full-name');
+    const fullNameInput = document.getElementById('full_name');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
 
@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ fullName, email, password })
+                // CORRECTED LINE: Change 'fullName' to 'full_name'
+                body: JSON.stringify({ full_name: fullName, email, password })
             });
 
             const data = await response.json();
