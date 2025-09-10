@@ -1,19 +1,20 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('profile-form');
-    const userEmail = localStorage.getItem('userEmail');
+    const userEmail = sessionStorage.getItem('loggedInUserEmail');
     const navLinks = document.querySelectorAll('.profile-nav a');
     const pages = document.querySelectorAll('.profile-page');
-    const profilePicPreview = document.getElementById('profile-pic-preview');
+    const profilePic = document.getElementById('profile-pic');
     const uploadBtn = document.getElementById('upload-btn');
-    const pfpUpload = document.getElementById('pfp-upload');
+    const pfpUpload = document.getElementById('profile_picture');
 
-    // Display message function
     const displayMessage = (message, type = 'error') => {
-        const messageContainer = document.createElement('div');
+        const messageContainer = document.getElementById('message');
         messageContainer.textContent = message;
-        messageContainer.classList.add('form-message', type);
-        form.prepend(messageContainer);
-        setTimeout(() => messageContainer.remove(), 5000);
+        messageContainer.className = `form-message ${type}`;
+        setTimeout(() => {
+            messageContainer.textContent = '';
+            messageContainer.className = 'form-message';
+        }, 5000);
     };
 
     if (!userEmail) {
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             navLinks.forEach(nav => nav.classList.remove('active'));
             e.target.classList.add('active');
             
-            const targetPage = e.target.getAttribute('data-page');
+            const targetPage = e.target.getAttribute('data-tab');
             pages.forEach(page => {
                 if (page.id === targetPage) {
                     page.classList.add('active');
@@ -47,70 +48,103 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                profilePicPreview.src = event.target.result;
+                profilePic.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
     });
+
+    const populateProfileData = (data) => {
+        document.getElementById('full_name').textContent = data.full_name || 'Not set';
+        document.getElementById('email').textContent = data.email || 'Not set';
+        document.getElementById('bio').textContent = data.bio || 'Not set';
+        document.getElementById('current_company').textContent = data.current_company || 'Not set';
+        document.getElementById('job_title').textContent = data.job_title || 'Not set';
+        document.getElementById('city').textContent = data.city || 'Not set';
+        document.getElementById('linkedin').textContent = data.linkedin || 'Not set';
+        document.getElementById('university').textContent = data.university || 'Not set';
+        document.getElementById('major').textContent = data.major || 'Not set';
+        document.getElementById('graduation_year').textContent = data.graduation_year || 'Not set';
+        document.getElementById('degree').textContent = data.degree || 'Not set';
+
+        if (data.profile_pic_url) {
+            profilePic.src = `http://localhost:3000/${data.profile_pic_url}`;
+        } else {
+            profilePic.src = 'https://via.placeholder.com/150';
+        }
+    };
 
     const fetchUserProfile = async () => {
         try {
             const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`);
             const data = await response.json();
             if (response.ok) {
-                document.getElementById('full-name').value = data.full_name || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('bio').value = data.bio || '';
-                document.getElementById('current-company').value = data.current_company || '';
-                document.getElementById('job-title').value = data.job_title || '';
-                document.getElementById('city').value = data.city || '';
-                document.getElementById('linkedin').value = data.linkedin || '';
-                document.getElementById('university').value = data.university || '';
-                document.getElementById('major').value = data.major || '';
-                document.getElementById('graduation-year').value = data.graduation_year || '';
-                document.getElementById('degree').value = data.degree || '';
-                if (data.profile_pic_url) {
-                    profilePicPreview.src = `http://localhost:3000/${data.profile_pic_url}`;
-                } else {
-                    profilePicPreview.src = 'default_pfp.jpg';
-                }
+                populateProfileData(data);
             } else {
-                console.error('Error fetching profile data:', data.message);
                 displayMessage('Failed to load profile data.');
             }
         } catch (error) {
-            console.error('Network error:', error);
             displayMessage('An error occurred while fetching profile data.');
         }
     };
 
     await fetchUserProfile();
 
+    document.querySelectorAll('.edit-icon').forEach(icon => {
+        icon.addEventListener('click', (e) => {
+            const field = e.target.previousElementSibling;
+            const display = field.previousElementSibling;
+            
+            if (field.style.display === 'none') {
+                display.style.display = 'none';
+                field.style.display = 'block';
+                field.value = display.textContent === 'Not set' ? '' : display.textContent;
+                e.target.classList.remove('fa-edit');
+                e.target.classList.add('fa-save');
+            } else {
+                display.style.display = 'block';
+                field.style.display = 'none';
+                display.textContent = field.value || 'Not set';
+                e.target.classList.remove('fa-save');
+                e.target.classList.add('fa-edit');
+            }
+        });
+    });
+
+    // New: Save on Enter key press
+    document.querySelectorAll('.edit-field').forEach(field => {
+        field.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const icon = e.target.nextElementSibling;
+                icon.click();
+            }
+        });
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // New Validation Logic
-        const graduationYear = document.getElementById('graduation-year').value;
-        const linkedinUrl = document.getElementById('linkedin').value;
+        const formData = new FormData();
+        
+        const fields = [
+            'full_name', 'bio', 'current_company', 'job_title', 
+            'city', 'linkedin', 'university', 'major', 
+            'graduation_year', 'degree'
+        ];
 
-        // Check if graduation year is a 4-digit number
-        if (graduationYear && !/^\d{4}$/.test(graduationYear)) {
-            displayMessage('Graduation Year must be a 4-digit number (e.g., 2024).');
-            return;
-        }
+        fields.forEach(id => {
+            const input = document.getElementById(`${id}_input`);
+            if (input && input.style.display === 'block') {
+                formData.append(id, input.value);
+            } else {
+                const display = document.getElementById(id);
+                formData.append(id, display.textContent === 'Not set' ? '' : display.textContent);
+            }
+        });
 
-        // Check if LinkedIn URL is a valid format
-        if (linkedinUrl && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.*/i.test(linkedinUrl)) {
-            displayMessage('Please enter a valid LinkedIn URL.');
-            return;
-        }
-
-        const formData = new FormData(form);
-        formData.delete('email');
-
-        const file = pfpUpload.files[0];
-        if (file) {
-            formData.append('profile_picture', file);
+        if (pfpUpload.files[0]) {
+            formData.append('profile_picture', pfpUpload.files[0]);
         }
 
         try {
@@ -123,11 +157,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (response.ok) {
                 displayMessage(data.message, 'success');
+                await fetchUserProfile();
             } else {
                 displayMessage(data.message);
             }
         } catch (error) {
-            console.error('Error:', error);
             displayMessage('An error occurred while saving your profile.');
         }
     });

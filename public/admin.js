@@ -1,78 +1,119 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const adminLogoutBtn = document.getElementById('admin-logout-btn');
-    if (adminLogoutBtn) {
-        adminLogoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('adminLoggedIn');
-            window.location.href = 'admin-login.html';
-        });
-    }
 
-    const addJobForm = document.getElementById('add-job-form');
-    const addEventForm = document.getElementById('add-event-form');
+    const userListContainer = document.getElementById('user-list');
+    const eventListContainer = document.getElementById('event-list');
+    const jobListContainer = document.getElementById('job-list');
+    const applicationListContainer = document.getElementById('application-list');
 
-
-    // Function to handle form submission for adding a job
-    addJobForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const jobData = {
-            title: document.getElementById('job-title').value,
-            company: document.getElementById('job-company').value,
-            location: document.getElementById('job-location').value,
-            description: document.getElementById('job-description').value,
-            contact_email: document.getElementById('job-contact').value
-        };
-
+    const fetchAndRenderList = async (endpoint, container, renderFunction) => {
         try {
-            const response = await fetch('http://localhost:3000/api/jobs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jobData)
-            });
-            const result = await response.json();
+            const response = await fetch(`http://localhost:3000/api/${endpoint}`);
+            const items = await response.json();
             
-            if (response.ok) {
-                alert('Job added successfully!');
-                addJobForm.reset();
+            container.innerHTML = '';
+            if (items.length > 0) {
+                items.forEach(item => {
+                    container.appendChild(renderFunction(item));
+                });
             } else {
-                alert(`Error: ${result.message}`);
+                container.innerHTML = '<p>No items to display.</p>';
             }
         } catch (error) {
-            console.error('Error adding job:', error);
-            alert('Failed to add job. Please try again.');
+            console.error(`Error fetching ${endpoint}:`, error);
+            container.innerHTML = `<p class="error-message">Failed to load ${endpoint}.</p>`;
         }
-    });
+    };
 
-    // Function to handle form submission for adding an event
-    addEventForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const eventData = {
-            title: document.getElementById('event-title').value,
-            date: document.getElementById('event-date').value,
-            location: document.getElementById('event-location').value,
-            organizer: document.getElementById('event-organizer').value,
-            description: document.getElementById('event-description').value
-        };
+    const handleDelete = async (type, id) => {
+        if (!confirm(`Are you sure you want to delete this ${type}?`)) {
+            return;
+        }
 
         try {
-            const response = await fetch('http://localhost:3000/api/events', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(eventData)
+            const response = await fetch(`http://localhost:3000/api/admin/${type}s/${id}`, {
+                method: 'DELETE'
             });
-            const result = await response.json();
-            
+
             if (response.ok) {
-                alert('Event added successfully!');
-                addEventForm.reset();
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully!`);
+                loadAdminData();
             } else {
+                const result = await response.json();
                 alert(`Error: ${result.message}`);
             }
         } catch (error) {
-            console.error('Error adding event:', error);
-            alert('Failed to add event. Please try again.');
+            console.error(`Error deleting ${type}:`, error);
+            alert(`Failed to delete ${type}. Please try again.`);
+        }
+    };
+
+    const renderUser = (user) => {
+        const item = document.createElement('div');
+        item.className = 'admin-list-item';
+        item.innerHTML = `
+            <div>
+                <strong>${user.full_name}</strong> (${user.email})
+                <span class="role-badge">${user.role}</span>
+            </div>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="${user.user_id}" data-type="user">Delete</button>
+        `;
+        return item;
+    };
+
+    const renderEvent = (event) => {
+        const item = document.createElement('div');
+        item.className = 'admin-list-item';
+        item.innerHTML = `
+            <div>
+                <strong>${event.title}</strong> - ${event.location}
+                <br><small>${new Date(event.date).toLocaleDateString()}</small>
+            </div>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="${event.event_id}" data-type="event">Delete</button>
+        `;
+        return item;
+    };
+
+    const renderJob = (job) => {
+        const item = document.createElement('div');
+        item.className = 'admin-list-item';
+        item.innerHTML = `
+            <div>
+                <strong>${job.title}</strong> at ${job.company}
+                <br><small>${job.location}</small>
+            </div>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="${job.job_id}" data-type="job">Delete</button>
+        `;
+        return item;
+    };
+
+    const renderApplication = (app) => {
+        const item = document.createElement('div');
+        item.className = 'admin-list-item';
+        const applicationDate = new Date(app.application_date).toLocaleDateString();
+        item.innerHTML = `
+            <div>
+                <strong>${app.full_name}</strong> (${app.user_email})
+                <br>Applied for: <em>${app.job_title}</em> on ${applicationDate}
+            </div>
+            <a href="http://localhost:3000/${app.resume_path}" target="_blank" class="btn btn-secondary btn-sm">View Resume</a>
+        `;
+        return item;
+    };
+
+    const loadAdminData = () => {
+        fetchAndRenderList('admin/users', userListContainer, renderUser);
+        fetchAndRenderList('events', eventListContainer, renderEvent);
+        fetchAndRenderList('jobs', jobListContainer, renderJob);
+        fetchAndRenderList('admin/applications', applicationListContainer, renderApplication);
+    };
+
+    loadAdminData();
+
+    document.querySelector('.admin-container').addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            const id = e.target.dataset.id;
+            const type = e.target.dataset.type;
+            handleDelete(type, id);
         }
     });
 });

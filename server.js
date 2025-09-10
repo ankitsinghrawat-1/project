@@ -10,7 +10,7 @@ const fs = require('fs').promises;
 const cookieParser = require('cookie-parser');
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors({
     origin: 'http://localhost:5500', 
@@ -19,7 +19,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Create a connection pool
 const pool = mysql.createPool({
@@ -32,24 +32,134 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Create 'uploads' directory if it doesn't exist
+// Create 'uploads' directories if they don't exist
 const uploadDir = path.join(__dirname, 'uploads');
+const resumeDir = path.join(__dirname, 'uploads', 'resumes');
 fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
+fs.mkdir(resumeDir, { recursive: true }).catch(console.error);
 
-// Multer for file uploads
+// Multer for file uploads (handles both profile pics and resumes)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        if (file.fieldname === 'resume') {
+            cb(null, resumeDir);
+        } else {
+            cb(null, uploadDir);
+        }
     },
     filename: (req, file, cb) => {
-        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+        const userIdentifier = req.body.email ? req.body.email.split('@')[0] : 'user';
+        cb(null, `${file.fieldname}-${userIdentifier}-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 const upload = multer({ storage: storage });
 
-// API Endpoints
+// --- NEW JOB APPLICATION ENDPOINTS ---
 
-// Login endpoint
+app.post('/api/jobs/:job_id/apply', upload.single('resume'), async (req, res) => {
+    const { job_id } = req.params;
+    const { email, full_name, cover_letter } = req.body;
+    
+    if (!req.file) {
+        return res.status(400).json({ message: 'A resume file is required.' });
+    }
+    const resume_path = `uploads/resumes/${req.file.filename}`;
+
+    try {
+        await pool.query(
+            'INSERT INTO job_applications (job_id, user_email, full_name, resume_path, cover_letter) VALUES (?, ?, ?, ?, ?)',
+            [job_id, email, full_name, resume_path, cover_letter]
+        );
+        res.status(201).json({ message: 'Application submitted successfully!' });
+    } catch (error) {
+        console.error('Error submitting application:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/admin/applications', async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                ja.full_name,
+                ja.user_email,
+                ja.resume_path,
+                ja.application_date,
+                j.title AS job_title
+            FROM job_applications ja
+            JOIN jobs j ON ja.job_id = j.job_id
+            ORDER BY ja.application_date DESC
+        `);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching applications for admin:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+// --- ADMIN ENDPOINTS ---
+
+app.get('/api/admin/users', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT user_id, full_name, email, role FROM users');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching users for admin:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/api/admin/users/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM users WHERE user_id = ?', [req.params.id]);
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/api/admin/events/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM events WHERE event_id = ?', [req.params.id]);
+        res.status(200).json({ message: 'Event deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/api/admin/jobs/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM jobs WHERE job_id = ?', [req.params.id]);
+        res.status(200).json({ message: 'Job deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting job:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+// --- GENERAL API ENDPOINTS ---
+
+app.get('/api/alumni', async (req, res) => {
+    const { query } = req.query;
+    try {
+        let sql = 'SELECT * FROM users';
+        const params = [];
+        if (query) {
+            sql += ' WHERE full_name LIKE ? OR current_company LIKE ? OR major LIKE ?';
+            params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+        }
+        const [rows] = await pool.query(sql, params);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching alumni:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -71,13 +181,11 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Logout endpoint
 app.post('/api/logout', (req, res) => {
     res.clearCookie('loggedIn');
     res.status(200).json({ message: 'Logout successful' });
 });
 
-// Endpoint to check login status
 app.get('/api/check-login', (req, res) => {
     if (req.cookies.loggedIn) {
         res.status(200).json({ isLoggedIn: true });
@@ -86,7 +194,6 @@ app.get('/api/check-login', (req, res) => {
     }
 });
 
-// Signup endpoint
 app.post('/api/signup', async (req, res) => {
     const { full_name, email, password } = req.body;
     try {
@@ -103,11 +210,9 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
-// Onboarding endpoint
 app.post('/api/onboard', async (req, res) => {
     const { email, university, university_email, city, graduation_year, major, degree, current_company, job_title, bio, linkedin } = req.body;
     
-    // Server-side validation
     if (!university || !university_email || !city || !graduation_year || !major || !degree || !current_company || !job_title || !bio || !linkedin) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
@@ -124,7 +229,6 @@ app.post('/api/onboard', async (req, res) => {
     }
 });
 
-// Get user profile for a logged-in user
 app.get('/api/profile/:email', async (req, res) => {
     const { email } = req.params;
     try {
@@ -139,41 +243,51 @@ app.get('/api/profile/:email', async (req, res) => {
     }
 });
 
-// Update user profile
 app.put('/api/profile/:email', upload.single('profile_picture'), async (req, res) => {
     const { email } = req.params;
-    const { bio, university, major, graduation_year, degree, current_company, job_title, city, linkedin } = req.body;
+    const linkedin = req.body.linkedin ? req.body.linkedin : null;
+    const { bio, university, major, graduation_year, degree, current_company, job_title, city } = req.body;
     let profile_pic_url = req.file ? `uploads/${req.file.filename}` : null;
 
     try {
+        const updateFields = { bio, university, major, graduation_year, degree, current_company, job_title, city, linkedin };
+        let sql = 'UPDATE users SET ';
+        const params = [];
+        
+        Object.keys(updateFields).forEach((key, index) => {
+            sql += `${key} = ?`;
+            params.push(updateFields[key]);
+            if (index < Object.keys(updateFields).length - 1) {
+                sql += ', ';
+            }
+        });
+
         if (profile_pic_url) {
             const [rows] = await pool.query('SELECT profile_pic_url FROM users WHERE email = ?', [email]);
             if (rows.length > 0 && rows[0].profile_pic_url) {
-                const oldPicPath = path.join(__dirname, 'public', rows[0].profile_pic_url);
-                try {
-                    await fs.unlink(oldPicPath);
-                } catch (unlinkError) {
-                    console.error('Failed to delete old profile picture:', unlinkError);
-                }
+                const oldPicPath = path.join(__dirname, rows[0].profile_pic_url);
+                fs.unlink(oldPicPath).catch(err => console.error("Failed to delete old profile pic:", err));
             }
-            await pool.query('UPDATE users SET bio = ?, university = ?, major = ?, graduation_year = ?, degree = ?, current_company = ?, job_title = ?, city = ?, linkedin = ?, profile_pic_url = ? WHERE email = ?', 
-            [bio, university, major, graduation_year, degree, current_company, job_title, city, linkedin, profile_pic_url, email]);
-        } else {
-            await pool.query('UPDATE users SET bio = ?, university = ?, major = ?, graduation_year = ?, degree = ?, current_company = ?, job_title = ?, city = ?, linkedin = ? WHERE email = ?', 
-            [bio, university, major, graduation_year, degree, current_company, job_title, city, linkedin, email]);
+            sql += ', profile_pic_url = ?';
+            params.push(profile_pic_url);
         }
+
+        sql += ' WHERE email = ?';
+        params.push(email);
+        
+        await pool.query(sql, params);
 
         res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Profile update error:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error', sqlMessage: error.sqlMessage });
     }
 });
 
-// Get recent events for the dashboard
+
 app.get('/api/events/recent', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT title, date, location FROM events ORDER BY date DESC LIMIT 3');
+        const [rows] = await pool.query('SELECT event_id, title, date, location FROM events ORDER BY date DESC LIMIT 3');
         const events = rows.map(row => ({
             ...row,
             date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -185,10 +299,9 @@ app.get('/api/events/recent', async (req, res) => {
     }
 });
 
-// Get recent jobs for the dashboard
 app.get('/api/jobs/recent', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT title, company, location FROM jobs ORDER BY created_at DESC LIMIT 3');
+        const [rows] = await pool.query('SELECT job_id, title, company, location FROM jobs ORDER BY created_at DESC LIMIT 3');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching recent jobs:', error);
@@ -196,10 +309,9 @@ app.get('/api/jobs/recent', async (req, res) => {
     }
 });
 
-// Get all events for the events page
 app.get('/api/events', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT title, description, date, location FROM events ORDER BY date DESC');
+        const [rows] = await pool.query('SELECT event_id, title, description, date, location FROM events ORDER BY date DESC');
         const events = rows.map(row => ({
             ...row,
             date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -211,10 +323,9 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
-// Get all jobs for the jobs page
 app.get('/api/jobs', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT title, company, location, description FROM jobs ORDER BY created_at DESC');
+        const [rows] = await pool.query('SELECT job_id, title, company, location, description, contact_email FROM jobs ORDER BY created_at DESC');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching all jobs:', error);
@@ -222,7 +333,6 @@ app.get('/api/jobs', async (req, res) => {
     }
 });
 
-// Add new job posting
 app.post('/api/jobs', async (req, res) => {
     const { title, company, location, description, contact_email } = req.body;
     try {
@@ -234,7 +344,6 @@ app.post('/api/jobs', async (req, res) => {
     }
 });
 
-// Add new event
 app.post('/api/events', async (req, res) => {
     const { title, date, location, organizer, description } = req.body;
     try {
@@ -246,7 +355,6 @@ app.post('/api/events', async (req, res) => {
     }
 });
 
-// Admin login endpoint (for a dedicated admin user)
 app.post('/api/admin-login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -270,6 +378,6 @@ app.post('/api/admin-login', async (req, res) => {
 
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });

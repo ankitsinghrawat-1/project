@@ -13,37 +13,49 @@
         <nav class="main-nav container">
             <a href="index.html" class="logo">AlumniConnect</a>
             <ul id="nav-links" class="nav-links">
-                </ul>
+            </ul>
         </nav>
     </header>
 
-    <main class="dashboard-main">
-        <div class="dashboard-container">
+    <main class="admin-main">
+        <div class="admin-container">
             <h2>Admin Dashboard</h2>
+            
             <div class="admin-actions">
-                <a href="add-event.html" class="btn btn-primary">Add New Event</a>
-                <a href="add-job.html" class="btn btn-secondary">Add New Job</a>
+                <a href="add-event.html" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Event</a>
+                <a href="add-job.html" class="btn btn-secondary"><i class="fas fa-plus"></i> Add New Job</a>
             </div>
             
             <section class="admin-section">
-                <h3>Recently Added Events</h3>
-                <ul id="recent-events-list" class="dashboard-list">
-                    </ul>
-                <a href="events.html" class="view-all-link">View All Events &rarr;</a>
+                <h3><i class="fas fa-users"></i> User Management</h3>
+                <div id="user-list" class="admin-list-container">
+                </div>
             </section>
             
             <section class="admin-section">
-                <h3>Recently Added Jobs</h3>
-                <ul id="recent-jobs-list" class="dashboard-list">
-                    </ul>
-                <a href="jobs.html" class="view-all-link">View All Jobs &rarr;</a>
+                <h3><i class="fas fa-calendar-alt"></i> Event Management</h3>
+                <div id="event-list" class="admin-list-container">
+                </div>
             </section>
+            
+            <section class="admin-section">
+                <h3><i class="fas fa-briefcase"></i> Job Management</h3>
+                <div id="job-list" class="admin-list-container">
+                </div>
+            </section>
+
+            <section class="admin-section">
+                <h3><i class="fas fa-file-alt"></i> Job Applications</h3>
+                <div id="application-list" class="admin-list-container">
+                </div>
+            </section>
+
         </div>
     </main>
     
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; 2024 AlumniConnect. All Rights Reserved.</p>
+            <p>&copy; 2025 AlumniConnect. All Rights Reserved.</p>
         </div>
     </footer>
 
