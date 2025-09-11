@@ -1,8 +1,5 @@
-/* --- Final Style Sheet for AlumniConnect --- */
 
-/*--------------------------------------------------
-  1. Global & Variables
---------------------------------------------------*/
+/*Global & Variables*/
 :root {
     --primary-color: #1e3a5f;      /* Deep Navy */
     --primary-dark-color: #152945; /* Darker Navy for hover states */
@@ -59,10 +56,6 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto;
     padding: 0 1.5rem;
 }
-
-/*--------------------------------------------------
-  2. Reusable Components
---------------------------------------------------*/
 
 /* Buttons */
 .btn {

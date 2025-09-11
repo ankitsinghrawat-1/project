@@ -1,4 +1,3 @@
-/* --- auth.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
     const navLinks = document.getElementById('nav-links');
 

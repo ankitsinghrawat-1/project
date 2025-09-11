@@ -1,4 +1,3 @@
-/* --- server.js --- */
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
@@ -32,7 +31,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Create 'uploads' directories if they don't exist
+// Create 'uploads' directory if they don't exist
 const uploadDir = path.join(__dirname, 'uploads');
 const resumeDir = path.join(__dirname, 'uploads', 'resumes');
 fs.mkdir(uploadDir, { recursive: true }).catch(console.error);

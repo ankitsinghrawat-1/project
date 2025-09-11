@@ -1,4 +1,3 @@
-/* --- dashboard.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
     const userEmail = sessionStorage.getItem('loggedInUserEmail');
     const userRole = sessionStorage.getItem('userRole');

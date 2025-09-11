@@ -1,4 +1,3 @@
-/* --- login.js --- */
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const messageDiv = document.getElementById('message');
@@ -9,10 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return; 
     }
 
-    // A separate check for the message div is good practice.
     if (!messageDiv) {
-        console.error("Error: The message element with ID 'message' was not found.");
-        // We can still proceed without it, but the user won't see feedback.
+        console.error("Error: The message element with ID 'message' was not found.");    
     }
 
     // Check if the user is already logged in

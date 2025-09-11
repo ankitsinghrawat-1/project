@@ -1,4 +1,3 @@
-/* --- view-profile.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userEmail = urlParams.get('email');

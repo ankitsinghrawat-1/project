@@ -1,4 +1,3 @@
-/* --- onboarding.js --- */
 document.addEventListener('DOMContentLoaded', async () => {
     const onboardForm = document.getElementById('onboard-form');
     const messageDiv = document.getElementById('message');
