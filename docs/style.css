@@ -1,4 +1,3 @@
-
 /*Global & Variables*/
 :root {
     --primary-color: #1e3a5f;      /* Deep Navy */
@@ -402,60 +401,6 @@ main {
 
 .form-container a:hover {
     color: var(--accent-color);
-}
-
-.input-group {
-    margin-bottom: 1.5rem;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--subtle-text-color);
-}
-
-.input-group input,
-.input-group textarea {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-medium);
-    font-size: 1rem;
-    background-color: #fcfcfc;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.input-group input:focus,
-.input-group textarea:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
-}
-
-/* Form Message Styling */
-.form-message {
-    padding: 1rem;
-    border-radius: var(--border-radius-small);
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-weight: 500;
-    opacity: 0.9;
-}
-
-.form-message.success {
-    background-color: #d4edda;
-    color: var(--success-color);
-}
-
-.form-message.error {
-    background-color: #f8d7da;
-    color: var(--error-color);
-}
-
-.form-message.info {
-    background-color: #dbe9f0;
-    color: var(--info-color);
 }
 
 /* --- onboarding.html, dashboard.html, & profile.html specific styling --- */
@@ -1009,18 +954,11 @@ a {
 
 a:hover {
     color: var(--accent-color);
-    transform: translateY(-1px);
 }
 
 /* 4. Footer Enhancement */
 .main-footer {
     border-top: 3px solid var(--accent-color);
-}
-
-/* Add a subtle line to all pages for consistency */
-main {
-    border-bottom: 3px solid var(--accent-color);
-    margin-bottom: 3rem;
 }
 
 /* --- Final Design Refinements --- */
@@ -1152,6 +1090,7 @@ a::after {
 a:hover::after {
     width: 100%;
 }
+
 /* --- Dark Mode Theme --- */
 
 /* 1. New Variables for Dark Mode */
@@ -1353,38 +1292,6 @@ body main {
 }
 
 /* Admin Dashboard Enhancements */
-.admin-main {
-    padding: 3rem 0;
-}
-
-.admin-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-.admin-actions {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.admin-section {
-    background: var(--surface-color);
-    border-radius: var(--border-radius-large);
-    box-shadow: var(--box-shadow-subtle);
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.admin-section h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
 .admin-list-container {
     display: flex;
     flex-direction: column;
@@ -1524,8 +1431,6 @@ body main {
     gap: 0.5rem;
 }
 
-
-
 /* Job Board Page Enhancements */
 .jobs-grid {
     display: grid;
@@ -1572,18 +1477,16 @@ body main {
     width: 100%;
 }
 
+/* --- CLICK & HOVER DROPDOWN STYLES --- */
 
-/* Profile Dropdown Enhancements */
-.profile-dropdown {
+.nav-dropdown {
     position: relative;
-    display: inline-block;
 }
 
 .dropdown-menu {
-    display: none;
     position: absolute;
     right: 0;
-    top: calc(100% + 10px); /* Position below the button */
+    top: calc(100% + 15px); /* Position it below the trigger */
     background-color: var(--surface-color);
     min-width: 220px;
     box-shadow: var(--box-shadow-elevated);
@@ -1593,15 +1496,34 @@ body main {
     margin: 0;
     border-radius: var(--border-radius-large);
     border: 1px solid var(--border-color);
+    
+    visibility: hidden;
     opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
 }
 
-.profile-dropdown:hover .dropdown-menu {
-    display: block;
+/* Show on Hover OR when active class is present */
+.nav-dropdown:hover > .dropdown-menu,
+.nav-dropdown.dropdown-active > .dropdown-menu {
+    visibility: visible;
     opacity: 1;
     transform: translateY(0);
+}
+
+.nav-dropdown .fa-chevron-down {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate icon when active */
+.nav-dropdown.dropdown-active .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown .dropdown-menu {
+    left: 0;
+    min-width: 180px;
 }
 
 .dropdown-menu li {
@@ -1637,7 +1559,6 @@ body main {
 
 .dropdown-menu .logout-button:hover {
     background-color: rgba(231, 76, 60, 0.1);
-    color: var(--error-color);
 }
 
 .dropdown-divider {
@@ -1647,49 +1568,7 @@ body main {
     margin: 0.5rem 0;
 }
 
-
-/* General Navigation Dropdown Styling */
-.nav-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.nav-dropdown > a {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-.nav-dropdown .fa-chevron-down {
-    font-size: 0.7rem;
-    transition: transform 0.3s ease;
-}
-
-.nav-dropdown:hover .fa-chevron-down {
-    transform: rotate(180deg);
-}
-
-.nav-dropdown .dropdown-menu {
-    top: calc(100% + 15px); /* Add a bit more space */
-    left: 0;
-    min-width: 180px;
-}
-
-.nav-dropdown:hover .dropdown-menu {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Re-using some profile dropdown styles for consistency */
-.nav-dropdown .dropdown-menu a {
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-/*About Us, Single Blog Post*/
+/* Static Page (About Us, Single Blog Post) */
 .static-page-main {
     padding: 3rem 0;
 }
@@ -1741,4 +1620,30 @@ body main {
 }
 .post-content p {
     margin-bottom: 1rem;
+}
+
+/* Events Page Enhancements */
+.events-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.event-card {
+    /* The .card class provides the main styling */
+    /* This class is for any specific overrides if needed */
+    text-align: left;
+}
+
+.event-card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.event-card p {
+    color: var(--subtle-text-color);
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }

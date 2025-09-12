@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (events.length > 0) {
             events.forEach(event => {
                 const eventCard = document.createElement('div');
-                eventCard.classList.add('event-card');
+                // FIX: Added the 'card' class to apply the card styling
+                eventCard.classList.add('event-card', 'card'); 
                 eventCard.innerHTML = `
                     <h3>${event.title}</h3>
                     <p><i class="fas fa-calendar-alt"></i> ${event.date}</p>
