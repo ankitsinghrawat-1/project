@@ -1647,3 +1647,37 @@ body main {
     align-items: center;
     gap: 0.5rem;
 }
+
+/* --- Privacy Settings Perfect Alignment (Final) --- */
+
+.privacy-option {
+    display: flex;
+    align-items: center; 
+    gap: 0.75rem;
+    margin-bottom: 1.0rem;
+}
+
+.privacy-label-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.privacy-option input[type="checkbox"] {
+    /* We use the default checkbox for a normal look */
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex-shrink: 0; 
+}
+
+.privacy-option label {
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.privacy-option small {
+    color: var(--subtle-text-color);
+    margin-top: 0.25rem;
+}

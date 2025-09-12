@@ -13,22 +13,20 @@ const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        // and all localhost origins.
         if (!origin || origin.startsWith('http://localhost')) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true // This is essential for sending cookies
+    credentials: true
 };
 app.use(cors(corsOptions));
 
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(express.static('docs')); // Using 'docs' for GitHub Pages
+app.use(express.static('docs'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Create a connection pool
@@ -42,16 +40,13 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// ... (The rest of your server.js file remains exactly the same)
-// I am including the full file for completeness.
-
 // Create 'uploads' directory if they don't exist
 const uploadDir = path.join(__dirname, 'uploads');
 const resumeDir = path.join(__dirname, 'uploads', 'resumes');
 fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
 fs.mkdir(resumeDir, { recursive: true }).catch(console.error);
 
-// Multer for file uploads (handles both profile pics and resumes)
+// Multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (file.fieldname === 'resume') {
@@ -67,7 +62,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- MENTORSHIP ENDPOINTS ---
+
+// --- MENTORSHIP ENDPOINTS (This was the missing section) ---
 
 app.post('/api/mentors', async (req, res) => {
     const { email, expertise_areas } = req.body;
@@ -102,43 +98,104 @@ app.get('/api/mentors', async (req, res) => {
     }
 });
 
-// --- BLOG ENDPOINTS ---
+// --- PRIVACY SETTINGS ENDPOINTS ---
 
-app.get('/api/blogs', async (req, res) => {
+app.get('/api/privacy/:email', async (req, res) => {
+    const { email } = req.params;
     try {
-        const [posts] = await pool.query(`
-            SELECT b.blog_id, b.title, b.content, b.created_at, u.full_name as author
-            FROM blogs b JOIN users u ON b.author_id = u.user_id ORDER BY b.created_at DESC
-        `);
-        res.json(posts);
-    } catch (error) {
-        console.error('Error fetching blogs:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
-
-app.get('/api/blogs/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const [post] = await pool.query(`
-            SELECT b.blog_id, b.title, b.content, b.created_at, u.full_name as author
-            FROM blogs b JOIN users u ON b.author_id = u.user_id WHERE b.blog_id = ?
-        `, [id]);
-        if (post.length === 0) {
-            return res.status(404).json({ message: 'Blog post not found' });
+        const [rows] = await pool.query('SELECT is_profile_public, is_email_visible, is_company_visible, is_location_visible FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        res.json(post[0]);
+        res.json(rows[0]);
     } catch (error) {
-        console.error('Error fetching blog post:', error);
+        console.error('Error fetching privacy settings:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.put('/api/privacy/:email', async (req, res) => {
+    const { email } = req.params;
+    const { is_profile_public, is_email_visible, is_company_visible, is_location_visible } = req.body;
+    try {
+        await pool.query(
+            'UPDATE users SET is_profile_public = ?, is_email_visible = ?, is_company_visible = ?, is_location_visible = ? WHERE email = ?',
+            [is_profile_public, is_email_visible, is_company_visible, is_location_visible, email]
+        );
+        res.status(200).json({ message: 'Privacy settings updated successfully' });
+    } catch (error) {
+        console.error('Error updating privacy settings:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// --- MODIFIED ENDPOINTS TO RESPECT PRIVACY ---
+
+app.get('/api/alumni', async (req, res) => {
+    const { query } = req.query;
+    try {
+        let sql = 'SELECT * FROM users WHERE is_profile_public = TRUE';
+        const params = [];
+        if (query) {
+            sql += ' AND (full_name LIKE ? OR current_company LIKE ? OR major LIKE ?)';
+            params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+        }
+        const [rows] = await pool.query(sql, params);
+        
+        const publicProfiles = rows.map(user => {
+            return {
+                ...user,
+                email: user.is_email_visible ? user.email : null,
+                current_company: user.is_company_visible ? user.current_company : null,
+                job_title: user.is_company_visible ? user.job_title : null,
+                city: user.is_location_visible ? user.city : null,
+            };
+        });
+
+        res.json(publicProfiles);
+    } catch (error) {
+        console.error('Error fetching alumni:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/profile/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+        
+        const user = rows[0];
+
+        if (!user.is_profile_public) {
+            return res.status(403).json({ 
+                message: 'This profile is private.',
+                full_name: user.full_name,
+                profile_pic_url: user.profile_pic_url
+            });
+        }
+        
+        const publicProfile = {
+            ...user,
+            email: user.is_email_visible ? user.email : null,
+            university_email: user.is_email_visible ? user.university_email : null,
+            current_company: user.is_company_visible ? user.current_company : null,
+            job_title: user.is_company_visible ? user.job_title : null,
+            city: user.is_location_visible ? user.city : null,
+        };
+
+        res.json(publicProfile);
+    } catch (error) {
+        console.error('Error fetching profile:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
 
-// --- All other endpoints from before remain here ---
+// --- ALL OTHER ENDPOINTS ---
 
-// ... (existing user, jobs, events, admin endpoints)
-// (The code for these endpoints is correct and does not need to be changed)
 app.post('/api/jobs/:job_id/apply', upload.single('resume'), async (req, res) => {
     const { job_id } = req.params;
     const { email, full_name, cover_letter } = req.body;
@@ -180,7 +237,6 @@ app.get('/api/admin/applications', async (req, res) => {
     }
 });
 
-
 app.get('/api/admin/users', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT user_id, full_name, email, role FROM users');
@@ -217,24 +273,6 @@ app.delete('/api/admin/jobs/:id', async (req, res) => {
         res.status(200).json({ message: 'Job deleted successfully' });
     } catch (error) {
         console.error('Error deleting job:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
-
-
-app.get('/api/alumni', async (req, res) => {
-    const { query } = req.query;
-    try {
-        let sql = 'SELECT * FROM users';
-        const params = [];
-        if (query) {
-            sql += ' WHERE full_name LIKE ? OR current_company LIKE ? OR major LIKE ?';
-            params.push(`%${query}%`, `%${query}%`, `%${query}%`);
-        }
-        const [rows] = await pool.query(sql, params);
-        res.json(rows);
-    } catch (error) {
-        console.error('Error fetching alumni:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -299,20 +337,6 @@ app.post('/api/onboard', async (req, res) => {
         res.status(200).json({ message: 'Onboarding complete' });
     } catch (error) {
         console.error('Onboarding error:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
-
-app.get('/api/profile/:email', async (req, res) => {
-    const { email } = req.params;
-    try {
-        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Profile not found' });
-        }
-        res.json(rows[0]);
-    } catch (error) {
-        console.error('Error fetching profile:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
@@ -445,7 +469,6 @@ app.post('/api/admin-login', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 
 // Start the server
 app.listen(PORT, () => {

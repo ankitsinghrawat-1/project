@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profilePic = document.getElementById('profile-pic');
     const uploadBtn = document.getElementById('upload-btn');
     const pfpUpload = document.getElementById('profile_picture');
+    const privacyForm = document.getElementById('privacy-form');
+    const privacyMessage = document.getElementById('privacy-message');
 
     const displayMessage = (message, type = 'error') => {
         const messageContainer = document.getElementById('message');
@@ -26,12 +28,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetTab = e.target.getAttribute('data-tab');
-            window.location.hash = targetTab; // Update URL hash
+            window.location.hash = targetTab;
         });
     });
 
     const handleTabSwitching = () => {
-        const hash = window.location.hash.substring(1) || 'edit-profile'; // Default to edit-profile
+        const hash = window.location.hash.substring(1) || 'edit-profile';
 
         navLinks.forEach(nav => nav.classList.remove('active'));
         pages.forEach(page => page.classList.remove('active'));
@@ -43,14 +45,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             targetLink.classList.add('active');
             targetPage.classList.add('active');
         } else {
-            // Fallback to the first tab if hash is invalid
             document.querySelector('.profile-nav a').classList.add('active');
             document.querySelector('.profile-page').classList.add('active');
         }
     };
     
     window.addEventListener('hashchange', handleTabSwitching);
-    handleTabSwitching(); // Initial tab load
+    handleTabSwitching();
 
     uploadBtn.addEventListener('click', () => {
         pfpUpload.click();
@@ -101,7 +102,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const fetchPrivacySettings = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/privacy/${userEmail}`);
+            const settings = await response.json();
+            if (response.ok) {
+                document.getElementById('is_profile_public').checked = settings.is_profile_public;
+                document.getElementById('is_email_visible').checked = settings.is_email_visible;
+                document.getElementById('is_company_visible').checked = settings.is_company_visible;
+                document.getElementById('is_location_visible').checked = settings.is_location_visible;
+            }
+        } catch (error) {
+            console.error('Error fetching privacy settings:', error);
+        }
+    };
+
     await fetchUserProfile();
+    await fetchPrivacySettings();
 
     document.querySelectorAll('.edit-icon').forEach(icon => {
         icon.addEventListener('click', (e) => {
@@ -136,15 +153,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const formData = new FormData();
-        
         const fields = [
             'full_name', 'bio', 'current_company', 'job_title', 
             'city', 'linkedin', 'university', 'major', 
             'graduation_year', 'degree'
         ];
-
         fields.forEach(id => {
             const input = document.getElementById(`${id}_input`);
             if (input && input.style.display === 'block') {
@@ -154,19 +168,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 formData.append(id, display.textContent === 'Not set' ? '' : display.textContent);
             }
         });
-
         if (pfpUpload.files[0]) {
             formData.append('profile_picture', pfpUpload.files[0]);
         }
-
         try {
             const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`, {
                 method: 'PUT',
                 body: formData
             });
-
             const data = await response.json();
-
             if (response.ok) {
                 displayMessage(data.message, 'success');
                 await fetchUserProfile();
@@ -175,6 +185,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (error) {
             displayMessage('An error occurred while saving your profile.');
+        }
+    });
+
+    privacyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const settings = {
+            is_profile_public: document.getElementById('is_profile_public').checked,
+            is_email_visible: document.getElementById('is_email_visible').checked,
+            is_company_visible: document.getElementById('is_company_visible').checked,
+            is_location_visible: document.getElementById('is_location_visible').checked
+        };
+        
+        try {
+            const response = await fetch(`http://localhost:3000/api/privacy/${userEmail}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            });
+            const result = await response.json();
+            privacyMessage.textContent = result.message;
+            if (response.ok) {
+                privacyMessage.className = 'form-message success';
+            } else {
+                privacyMessage.className = 'form-message error';
+            }
+        } catch (error) {
+            privacyMessage.className = 'form-message error';
+            privacyMessage.textContent = 'An error occurred while saving.';
         }
     });
 });

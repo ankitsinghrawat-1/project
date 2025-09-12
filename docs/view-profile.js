@@ -3,13 +3,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userEmail = urlParams.get('email');
 
     if (!userEmail) {
-        document.querySelector('.profile-container-view').innerHTML = '<div class="info-message">User not found.</div>';
+        document.querySelector('.profile-main-view').innerHTML = '<div class="info-message card">User not found.</div>';
         return;
     }
 
     const fetchUserProfile = async (email) => {
         try {
             const response = await fetch(`http://localhost:3000/api/profile/${email}`);
+            
+            if (response.status === 403) {
+                const privateData = await response.json();
+                document.querySelector('.profile-container-view').innerHTML = `
+                    <div class="profile-header-view">
+                        <img class="profile-pic-view" src="${privateData.profile_pic_url ? `http://localhost:3000/${privateData.profile_pic_url}` : 'https://via.placeholder.com/150'}" alt="Profile Picture">
+                        <h2>${privateData.full_name}</h2>
+                        <p class="info-message"><i class="fas fa-lock"></i> This profile is private.</p>
+                    </div>
+                `;
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error('Failed to fetch user profile');
             }
@@ -45,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } catch (error) {
             console.error('Error fetching user profile:', error);
-            document.querySelector('.profile-container-view').innerHTML = `<div class="info-message">Could not load profile.</div>`;
+            document.querySelector('.profile-main-view').innerHTML = `<div class="info-message card error">Could not load profile.</div>`;
         }
     };
 
