@@ -1647,6 +1647,48 @@ body main {
     margin: 0.5rem 0;
 }
 
+
+/* General Navigation Dropdown Styling */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown > a {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.nav-dropdown .fa-chevron-down {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-dropdown:hover .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown .dropdown-menu {
+    top: calc(100% + 15px); /* Add a bit more space */
+    left: 0;
+    min-width: 180px;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Re-using some profile dropdown styles for consistency */
+.nav-dropdown .dropdown-menu a {
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
 /*About Us, Single Blog Post*/
 .static-page-main {
     padding: 3rem 0;

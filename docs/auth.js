@@ -19,15 +19,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (data.isLoggedIn && loggedInUserEmail) {
             navItems.innerHTML = `
-                <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="blogs.html">Blog</a></li>
-                <li><a href="directory.html">Directory</a></li>
-                <li><a href="mentors.html">Mentors</a></li>
-                <li><a href="events.html">Events</a></li>
-                <li><a href="jobs.html">Jobs</a></li>
-                <li><a href="campaigns.html">Campaigns</a></li>
+
+                <li class="nav-dropdown">
+                    <a href="#">Connect <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="directory.html">Directory</a></li>
+                        <li><a href="mentors.html">Mentors</a></li>
+                        <li><a href="events.html">Events</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-dropdown">
+                    <a href="#">Resources <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="blogs.html">Blog</a></li>
+                        <li><a href="jobs.html">Job Board</a></li>
+                        <li><a href="campaigns.html">Campaigns</a></li>
+                    </ul>
+                </li>
+
                 ${userRole === 'admin' ? `<li><a href="admin.html" class="btn btn-secondary">Admin Dashboard</a></li>` : `<li><a href="dashboard.html" class="btn btn-secondary">Dashboard</a></li>`}
+                
                 <li class="profile-dropdown">
                     <a href="profile.html" class="btn btn-primary">Profile</a>
                     <ul class="dropdown-menu">
@@ -40,20 +53,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </li>
             `;
         } else {
+            // Logged-out state
             navItems.innerHTML = `
-                <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="blogs.html">Blog</a></li>
-                <li><a href="login.html">Directory</a></li>
-                <li><a href="login.html">Events</a></li>
-                <li><a href="login.html">Jobs</a></li>
-                <li><a href="login.html">Campaigns</a></li>
                 <li><a href="login.html" class="btn btn-secondary">Log In</a></li>
                 <li><a href="signup.html" class="btn btn-primary">Sign Up</a></li>
             `;
         }
 
-        navLinks.innerHTML = ''; // Clear existing links
+        navLinks.innerHTML = '';
         navLinks.appendChild(navItems);
 
         const logoutBtn = document.getElementById('logout-btn');
