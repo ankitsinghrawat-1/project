@@ -25,19 +25,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            navLinks.forEach(nav => nav.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            const targetPage = e.target.getAttribute('data-tab');
-            pages.forEach(page => {
-                if (page.id === targetPage) {
-                    page.classList.add('active');
-                } else {
-                    page.classList.remove('active');
-                }
-            });
+            const targetTab = e.target.getAttribute('data-tab');
+            window.location.hash = targetTab; // Update URL hash
         });
     });
+
+    const handleTabSwitching = () => {
+        const hash = window.location.hash.substring(1) || 'edit-profile'; // Default to edit-profile
+
+        navLinks.forEach(nav => nav.classList.remove('active'));
+        pages.forEach(page => page.classList.remove('active'));
+
+        const targetLink = document.querySelector(`.profile-nav a[data-tab="${hash}"]`);
+        const targetPage = document.getElementById(hash);
+
+        if (targetLink && targetPage) {
+            targetLink.classList.add('active');
+            targetPage.classList.add('active');
+        } else {
+            // Fallback to the first tab if hash is invalid
+            document.querySelector('.profile-nav a').classList.add('active');
+            document.querySelector('.profile-page').classList.add('active');
+        }
+    };
+    
+    window.addEventListener('hashchange', handleTabSwitching);
+    handleTabSwitching(); // Initial tab load
 
     uploadBtn.addEventListener('click', () => {
         pfpUpload.click();
@@ -111,7 +124,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // New: Save on Enter key press
     document.querySelectorAll('.edit-field').forEach(field => {
         field.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {

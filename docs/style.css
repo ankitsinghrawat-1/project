@@ -1571,3 +1571,132 @@ body main {
     margin-top: auto;
     width: 100%;
 }
+
+
+/* Profile Dropdown Enhancements */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px); /* Position below the button */
+    background-color: var(--surface-color);
+    min-width: 220px;
+    box-shadow: var(--box-shadow-elevated);
+    z-index: 1001;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--border-color);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.profile-dropdown:hover .dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dropdown-menu li {
+    padding: 0;
+}
+
+.dropdown-menu a,
+.dropdown-menu .logout-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu .logout-button:hover {
+    background-color: var(--background-color);
+    color: var(--primary-color);
+}
+
+.dropdown-menu .logout-button {
+    color: var(--error-color);
+}
+
+.dropdown-menu .logout-button:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--error-color);
+}
+
+.dropdown-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+/*About Us, Single Blog Post*/
+.static-page-main {
+    padding: 3rem 0;
+}
+.about-section h1, .blog-post-full h1 {
+    margin-bottom: 1rem;
+}
+.lead {
+    font-size: 1.25rem;
+    color: var(--subtle-text-color);
+    margin-bottom: 2rem;
+}
+.about-content ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+.about-content li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+.about-content i {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+/* Blog List Page */
+.blog-list-container {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+}
+.blog-post-summary {
+    padding: 2rem;
+}
+.post-meta {
+    color: var(--subtle-text-color);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+/* Single Blog Post */
+.post-content {
+    line-height: 1.8;
+    margin-top: 2rem;
+}
+.post-content p {
+    margin-bottom: 1rem;
+}

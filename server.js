@@ -17,7 +17,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(express.static('public'));
+app.use(express.static('docs'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Create a connection pool
@@ -212,10 +212,6 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/onboard', async (req, res) => {
     const { email, university, university_email, city, graduation_year, major, degree, current_company, job_title, bio, linkedin } = req.body;
     
-    if (!university || !university_email || !city || !graduation_year || !major || !degree || !current_company || !job_title || !bio || !linkedin) {
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
-    
     try {
         await pool.query(
             'UPDATE users SET university = ?, university_email = ?, city = ?, graduation_year = ?, major = ?, degree = ?, current_company = ?, job_title = ?, bio = ?, linkedin = ?, onboarding_complete = TRUE WHERE email = ?',
@@ -244,37 +240,38 @@ app.get('/api/profile/:email', async (req, res) => {
 
 app.put('/api/profile/:email', upload.single('profile_picture'), async (req, res) => {
     const { email } = req.params;
-    const linkedin = req.body.linkedin ? req.body.linkedin : null;
-    const { bio, university, major, graduation_year, degree, current_company, job_title, city } = req.body;
-    let profile_pic_url = req.file ? `uploads/${req.file.filename}` : null;
+    const { full_name, bio, current_company, job_title, city, linkedin, university, major, graduation_year, degree } = req.body;
+    let profile_pic_url = req.file ? `uploads/${req.file.filename}` : undefined;
 
     try {
-        const updateFields = { bio, university, major, graduation_year, degree, current_company, job_title, city, linkedin };
-        let sql = 'UPDATE users SET ';
-        const params = [];
-        
-        Object.keys(updateFields).forEach((key, index) => {
-            sql += `${key} = ?`;
-            params.push(updateFields[key]);
-            if (index < Object.keys(updateFields).length - 1) {
-                sql += ', ';
-            }
-        });
+        const [userRows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (userRows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const user = userRows[0];
 
+        const updateData = {};
+        if (full_name !== undefined) updateData.full_name = full_name;
+        if (bio !== undefined) updateData.bio = bio;
+        if (current_company !== undefined) updateData.current_company = current_company;
+        if (job_title !== undefined) updateData.job_title = job_title;
+        if (city !== undefined) updateData.city = city;
+        if (linkedin !== undefined) updateData.linkedin = linkedin;
+        if (university !== undefined) updateData.university = university;
+        if (major !== undefined) updateData.major = major;
+        if (graduation_year !== undefined) updateData.graduation_year = graduation_year;
+        if (degree !== undefined) updateData.degree = degree;
         if (profile_pic_url) {
-            const [rows] = await pool.query('SELECT profile_pic_url FROM users WHERE email = ?', [email]);
-            if (rows.length > 0 && rows[0].profile_pic_url) {
-                const oldPicPath = path.join(__dirname, rows[0].profile_pic_url);
+            updateData.profile_pic_url = profile_pic_url;
+            if (user.profile_pic_url) {
+                const oldPicPath = path.join(__dirname, user.profile_pic_url);
                 fs.unlink(oldPicPath).catch(err => console.error("Failed to delete old profile pic:", err));
             }
-            sql += ', profile_pic_url = ?';
-            params.push(profile_pic_url);
         }
-
-        sql += ' WHERE email = ?';
-        params.push(email);
         
-        await pool.query(sql, params);
+        if (Object.keys(updateData).length > 0) {
+            await pool.query('UPDATE users SET ? WHERE email = ?', [updateData, email]);
+        }
 
         res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
@@ -371,6 +368,91 @@ app.post('/api/admin-login', async (req, res) => {
         }
     } catch (error) {
         console.error('Admin login error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+// Endpoint for a user to sign up as a mentor
+app.post('/api/mentors', async (req, res) => {
+    const { email, expertise_areas } = req.body;
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const user_id = user[0].user_id;
+
+        // Check if the user is already a mentor
+        const [existingMentor] = await pool.query('SELECT * FROM mentors WHERE user_id = ?', [user_id]);
+        if (existingMentor.length > 0) {
+            return res.status(409).json({ message: 'You are already registered as a mentor.' });
+        }
+
+        await pool.query('INSERT INTO mentors (user_id, expertise_areas) VALUES (?, ?)', [user_id, expertise_areas]);
+        res.status(201).json({ message: 'Successfully registered as a mentor!' });
+    } catch (error) {
+        console.error('Error registering mentor:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to get a list of all available mentors
+app.get('/api/mentors', async (req, res) => {
+    try {
+        const [mentors] = await pool.query(`
+            SELECT 
+                u.full_name, 
+                u.job_title, 
+                u.current_company, 
+                u.profile_pic_url,
+                u.email,
+                m.expertise_areas
+            FROM mentors m
+            JOIN users u ON m.user_id = u.user_id
+            WHERE m.is_available = TRUE
+        `);
+        res.json(mentors);
+    } catch (error) {
+        console.error('Error fetching mentors:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+// Get all blog posts
+app.get('/api/blogs', async (req, res) => {
+    try {
+        const [posts] = await pool.query(`
+            SELECT b.blog_id, b.title, b.content, b.created_at, u.full_name as author
+            FROM blogs b
+            JOIN users u ON b.author_id = u.user_id
+            ORDER BY b.created_at DESC
+        `);
+        res.json(posts);
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Get a single blog post by ID
+app.get('/api/blogs/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [post] = await pool.query(`
+            SELECT b.blog_id, b.title, b.content, b.created_at, u.full_name as author
+            FROM blogs b
+            JOIN users u ON b.author_id = u.user_id
+            WHERE b.blog_id = ?
+        `, [id]);
+        
+        if (post.length === 0) {
+            return res.status(404).json({ message: 'Blog post not found' });
+        }
+        res.json(post[0]);
+    } catch (error) {
+        console.error('Error fetching blog post:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
