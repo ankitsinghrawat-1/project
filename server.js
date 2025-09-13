@@ -37,21 +37,20 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or server-to-server requests)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: function (origin, callback) {
+      // Check if the incoming origin is in our whitelist
+      if (whitelist.indexOf(origin) !== -1 || !origin) { // `!origin` allows server-to-server or REST tools
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS')); // This is the error you were seeing
+      }
+    }
+  };
     credentials: true,
-};
+
 app.use(cors(corsOptions));
 
-
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static('docs'));
