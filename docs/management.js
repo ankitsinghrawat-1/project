@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const apiEndpoints = {
-        users: { url: 'admin/users', type: 'user', idField: 'user_id' },
-        events: { url: 'events', type: 'event', idField: 'event_id' },
-        jobs: { url: 'jobs', type: 'job', idField: 'job_id' },
-        applications: { url: 'admin/applications', type: 'application', idField: null } // No delete for applications
+    const apiConfig = {
+        users: { url: 'admin/users', type: 'user' },
+        events: { url: 'events', type: 'event' },
+        jobs: { url: 'jobs', type: 'job' },
+        campaigns: { url: 'campaigns', type: 'campaign' },
+        applications: { url: 'admin/applications', type: 'application' }
     };
 
     const renderers = {
@@ -27,14 +28,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${item.title}</td>
                 <td>${item.location}</td>
                 <td>${new Date(item.date).toLocaleDateString()}</td>
-                <td><button class="btn btn-danger btn-sm delete-btn" data-id="${item.event_id}" data-type="event">Delete</button></td>
+                <td>
+                    <a href="edit-event.html?id=${item.event_id}" class="btn btn-secondary btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${item.event_id}" data-type="event">Delete</button>
+                </td>
             </tr>`,
         jobs: (item) => `
             <tr>
                 <td>${item.title}</td>
                 <td>${item.company}</td>
                 <td>${item.location}</td>
-                <td><button class="btn btn-danger btn-sm delete-btn" data-id="${item.job_id}" data-type="job">Delete</button></td>
+                <td>
+                    <a href="edit-job.html?id=${item.job_id}" class="btn btn-secondary btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${item.job_id}" data-type="job">Delete</button>
+                </td>
+            </tr>`,
+        campaigns: (item) => `
+            <tr>
+                <td>${item.title}</td>
+                <td>$${parseFloat(item.goal_amount).toLocaleString()}</td>
+                <td>${new Date(item.end_date).toLocaleDateString()}</td>
+                <td>
+                    <a href="edit-campaign.html?id=${item.campaign_id}" class="btn btn-secondary btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${item.campaign_id}" data-type="campaign">Delete</button>
+                </td>
             </tr>`,
         applications: (item) => `
             <tr>
@@ -47,14 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadData = async () => {
-        const endpoint = apiEndpoints[pageType];
-        if (!endpoint) return;
+        const config = apiConfig[pageType];
+        if (!config) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/${endpoint.url}`);
+            const response = await fetch(`http://localhost:3000/api/${config.url}`);
             const items = await response.json();
             
-            listContainer.innerHTML = '';
             if (items.length > 0) {
                 listContainer.innerHTML = items.map(renderers[pageType]).join('');
             } else {
@@ -70,20 +86,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('delete-btn')) {
             const type = e.target.dataset.type;
             const id = e.target.dataset.id;
+            const config = Object.values(apiConfig).find(c => c.type === type);
 
             if (confirm(`Are you sure you want to delete this ${type}?`)) {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/admin/${type}s/${id}`, { method: 'DELETE' });
+                    const deleteUrl = (type === 'user') 
+                        ? `http://localhost:3000/api/admin/${type}s/${id}`
+                        : `http://localhost:3000/api/${config.url}/${id}`;
+                        
+                    const response = await fetch(deleteUrl, { method: 'DELETE' });
+
                     if (response.ok) {
-                        alert(`${type} deleted successfully.`);
-                        loadData(); // Reload the list
+                        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`, 'success');
+                        loadData();
                     } else {
                         const result = await response.json();
-                        alert(`Error: ${result.message}`);
+                        showToast(`Error: ${result.message}`, 'error');
                     }
                 } catch (error) {
                     console.error(`Error deleting ${type}:`, error);
-                    alert(`An error occurred while deleting the ${type}.`);
+                    showToast(`An error occurred while deleting the ${type}.`, 'error');
                 }
             }
         }

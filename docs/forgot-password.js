@@ -19,14 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
-                window.location.href = 'login.html';
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.href = 'login.html', 2000);
             } else {
-                alert(data.message);
+                showToast(data.message, 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showToast('An error occurred. Please try again.', 'error');
         }
     });
 });

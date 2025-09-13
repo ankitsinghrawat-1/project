@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css");
+
 /*Global & Variables*/
 :root {
     --primary-color: #1e3a5f;      /* Deep Navy */

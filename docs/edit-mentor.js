@@ -18,13 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const profile = await response.json();
                 expertiseAreasInput.value = profile.expertise_areas;
             } else {
-                messageDiv.className = 'form-message error';
-                messageDiv.textContent = 'Could not load your mentor profile.';
+                showToast('Could not load your mentor profile.', 'error');
             }
         } catch (error) {
             console.error('Error fetching mentor profile:', error);
-            messageDiv.className = 'form-message error';
-            messageDiv.textContent = 'An error occurred while loading your profile.';
+            showToast('An error occurred while loading your profile.', 'error');
         }
     };
 
@@ -40,17 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
-            messageDiv.textContent = result.message;
 
             if (response.ok) {
-                messageDiv.className = 'form-message success';
+                showToast(result.message, 'success');
                 setTimeout(() => window.location.href = 'mentors.html', 2000);
             } else {
-                messageDiv.className = 'form-message error';
+                showToast(result.message, 'error');
             }
         } catch (error) {
-            messageDiv.className = 'form-message error';
-            messageDiv.textContent = 'An error occurred. Please try again.';
+            showToast('An error occurred. Please try again.', 'error');
             console.error('Error updating mentor profile:', error);
         }
     });
@@ -67,15 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('You have been successfully unlisted as a mentor.');
-                    window.location.href = 'mentors.html';
+                    showToast('You have been successfully unlisted.', 'success');
+                    setTimeout(() => window.location.href = 'mentors.html', 2000);
                 } else {
-                    messageDiv.className = 'form-message error';
-                    messageDiv.textContent = result.message;
+                    showToast(result.message, 'error');
                 }
             } catch (error) {
-                messageDiv.className = 'form-message error';
-                messageDiv.textContent = 'An error occurred. Please try again.';
+                showToast('An error occurred. Please try again.', 'error');
                 console.error('Error unlisting mentor:', error);
             }
         }

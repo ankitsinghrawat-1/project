@@ -6,30 +6,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('http://localhost:3000/api/campaigns');
             const campaigns = await response.json();
 
+            campaignsGrid.innerHTML = ''; // Clear existing content
+
             if (campaigns.length > 0) {
                 campaigns.forEach(campaign => {
                     const campaignCard = document.createElement('div');
-                    campaignCard.classList.add('campaign-card');
+                    campaignCard.classList.add('campaign-card', 'card');
+
+                    const progress = (campaign.current_amount / campaign.goal_amount) * 100;
+                    const imageUrl = campaign.image_url || 'https://via.placeholder.com/400x200?text=Alumni+Cause';
+
                     campaignCard.innerHTML = `
-                        <img src="${campaign.image_url}" alt="${campaign.title}" class="campaign-image">
+                        <img src="${imageUrl}" alt="${campaign.title}" class="campaign-image">
                         <div class="campaign-content">
                             <h3>${campaign.title}</h3>
-                            <p>${campaign.description}</p>
-                            <div class="campaign-progress">
-                                <progress value="${campaign.current_amount}" max="${campaign.goal}"></progress>
-                                <p>$${campaign.current_amount.toLocaleString()} raised of $${campaign.goal.toLocaleString()}</p>
+                            <p>${campaign.description.substring(0, 120)}...</p>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: ${progress.toFixed(2)}%;"></div>
                             </div>
-                            <a href="#" class="btn btn-secondary">Learn More</a>
+                            <div class="campaign-stats">
+                                <span><b>$${parseFloat(campaign.current_amount).toLocaleString()}</b> raised</span>
+                                <span>Goal: $${parseFloat(campaign.goal_amount).toLocaleString()}</span>
+                            </div>
+                            <a href="#" class="btn btn-primary campaign-cta">Donate Now</a>
                         </div>
                     `;
                     campaignsGrid.appendChild(campaignCard);
                 });
             } else {
-                campaignsGrid.innerHTML = '<p>No active campaigns to display.</p>';
+                campaignsGrid.innerHTML = '<p class="info-message">No active campaigns at this time.</p>';
             }
         } catch (error) {
             console.error('Error fetching campaigns:', error);
-            campaignsGrid.innerHTML = '<p>Failed to load campaigns. Please try again later.</p>';
+            campaignsGrid.innerHTML = '<p class="info-message error">Failed to load campaigns. Please try again later.</p>';
         }
     };
 

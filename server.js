@@ -239,6 +239,75 @@ app.post('/api/blogs', async (req, res) => {
     }
 });
 
+// --- CAMPAIGN ENDPOINTS ---
+
+app.post('/api/campaigns', async (req, res) => {
+    const { title, description, goal_amount, start_date, end_date, image_url, admin_email } = req.body;
+    try {
+        const [admin] = await pool.query('SELECT user_id FROM users WHERE email = ? AND role = "admin"', [admin_email]);
+        if (admin.length === 0) {
+            return res.status(403).json({ message: 'Unauthorized: Only admins can create campaigns.' });
+        }
+        const created_by = admin[0].user_id;
+
+        await pool.query(
+            'INSERT INTO campaigns (title, description, goal_amount, start_date, end_date, image_url, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [title, description, goal_amount, start_date, end_date, image_url, created_by]
+        );
+        res.status(201).json({ message: 'Campaign created successfully!' });
+    } catch (error) {
+        console.error('Error creating campaign:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/campaigns', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM campaigns ORDER BY end_date DESC');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching campaigns:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/campaigns/:id', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM campaigns WHERE campaign_id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Campaign not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching single campaign:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.put('/api/campaigns/:id', async (req, res) => {
+    const { title, description, goal_amount, start_date, end_date, image_url } = req.body;
+    try {
+        await pool.query(
+            'UPDATE campaigns SET title = ?, description = ?, goal_amount = ?, start_date = ?, end_date = ?, image_url = ? WHERE campaign_id = ?',
+            [title, description, goal_amount, start_date, end_date, image_url, req.params.id]
+        );
+        res.status(200).json({ message: 'Campaign updated successfully!' });
+    } catch (error) {
+        console.error('Error updating campaign:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/api/campaigns/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM campaigns WHERE campaign_id = ?', [req.params.id]);
+        res.status(200).json({ message: 'Campaign deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting campaign:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // --- MODIFIED ENDPOINTS TO RESPECT PRIVACY ---
 
 app.get('/api/alumni', async (req, res) => {
@@ -515,7 +584,7 @@ app.delete('/api/admin/users/:id', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/events/:id', async (req, res) => {
+app.delete('/api/events/:id', async (req, res) => {
     try {
         await pool.query('DELETE FROM events WHERE event_id = ?', [req.params.id]);
         res.status(200).json({ message: 'Event deleted successfully' });
@@ -525,7 +594,7 @@ app.delete('/api/admin/events/:id', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/jobs/:id', async (req, res) => {
+app.delete('/api/jobs/:id', async (req, res) => {
     try {
         await pool.query('DELETE FROM jobs WHERE job_id = ?', [req.params.id]);
         res.status(200).json({ message: 'Job deleted successfully' });
@@ -700,23 +769,60 @@ app.get('/api/events/:id', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        const event = {
-            ...rows[0],
-            date: new Date(rows[0].date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
-        };
-        res.json(event);
+        res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching single event:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
+app.put('/api/events/:id', async (req, res) => {
+    const { title, description, date, location, organizer } = req.body;
+    try {
+        await pool.query(
+            'UPDATE events SET title = ?, description = ?, date = ?, location = ?, organizer = ? WHERE event_id = ?',
+            [title, description, date, location, organizer, req.params.id]
+        );
+        res.status(200).json({ message: 'Event updated successfully!' });
+    } catch (error) {
+        console.error('Error updating event:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.get('/api/jobs', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT job_id, title, company, location, description, contact_email FROM jobs ORDER BY created_at DESC');
+        const [rows] = await pool.query('SELECT * FROM jobs ORDER BY created_at DESC');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching all jobs:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/jobs/:id', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM jobs WHERE job_id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching single job:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.put('/api/jobs/:id', async (req, res) => {
+    const { title, description, company, location, contact_email } = req.body;
+    try {
+        await pool.query(
+            'UPDATE jobs SET title = ?, description = ?, company = ?, location = ?, contact_email = ? WHERE job_id = ?',
+            [title, description, company, location, contact_email, req.params.id]
+        );
+        res.status(200).json({ message: 'Job updated successfully!' });
+    } catch (error) {
+        console.error('Error updating job:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

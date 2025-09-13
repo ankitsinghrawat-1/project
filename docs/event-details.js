@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchEventData = async () => {
         try {
-            // Fetch event details and attendees in parallel
             const [eventRes, attendeesRes, rsvpsRes] = await Promise.all([
                 fetch(`http://localhost:3000/api/events/${eventId}`),
                 fetch(`http://localhost:3000/api/events/${eventId}/attendees`),
@@ -23,13 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const event = await eventRes.json();
-            // Safely get attendees and rsvps, defaulting to empty arrays/sets if fetches fail
             const attendees = attendeesRes.ok ? await attendeesRes.json() : [];
             const userRsvps = rsvpsRes.ok ? new Set(await rsvpsRes.json()) : new Set();
             
             const isRsvpd = userRsvps.has(parseInt(event.event_id));
 
-            document.title = event.title; // Update page title
+            document.title = event.title;
 
             let attendeesHTML = '<h4>No attendees yet.</h4>';
             if (attendees.length > 0) {
@@ -74,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Handle Respond button clicks using event delegation
     eventDetailsContainer.addEventListener('click', async (e) => {
         if (e.target.classList.contains('respond-btn')) {
             const isRsvpd = e.target.textContent.trim() === 'Cancel Response';
@@ -88,15 +85,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 if (response.ok) {
-                    // Refresh the entire page content to show the update
+                    showToast('Your response has been updated!', 'success');
                     fetchEventData(); 
                 } else {
                     const result = await response.json();
-                    alert(`Error: ${result.message}`);
+                    showToast(`Error: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error responding to event:', error);
-                alert('An error occurred. Please try again.');
+                showToast('An error occurred. Please try again.', 'error');
             }
         }
     });
