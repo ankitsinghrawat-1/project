@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const addJobForm = document.getElementById('add-job-form');
-    const messageDiv = document.getElementById('message');
 
     if (addJobForm) {
         addJobForm.addEventListener('submit', async (e) => {
@@ -21,19 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(jobData)
                 });
                 const result = await response.json();
-                
+
                 if (response.ok) {
-                    messageDiv.textContent = 'Job added successfully!';
-                    messageDiv.className = 'form-message success';
+                    showToast('Job added successfully!', 'success');
                     addJobForm.reset();
                 } else {
-                    messageDiv.textContent = `Error: ${result.message}`;
-                    messageDiv.className = 'form-message error';
+                    showToast(`Error: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error adding job:', error);
-                messageDiv.textContent = 'Failed to add job. Please try again.';
-                messageDiv.className = 'form-message error';
+                showToast('Failed to add job. Please try again.', 'error');
             }
         });
     }

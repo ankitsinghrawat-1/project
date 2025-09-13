@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`http://localhost:3000/api/${config.url}`);
             const items = await response.json();
-
+            
             if (items.length > 0) {
                 listContainer.innerHTML = items.map(renderers[pageType]).join('');
             } else {
@@ -86,13 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('delete-btn')) {
             const type = e.target.dataset.type;
             const id = e.target.dataset.id;
-
+            
             if (confirm(`Are you sure you want to delete this ${type}?`)) {
                 try {
+                    //  All admin deletions should go through the /api/admin/ route for consistency, except for campaigns.
                     const deleteUrl = (type === 'campaign')
                         ? `http://localhost:3000/api/campaigns/${id}`
                         : `http://localhost:3000/api/admin/${type}s/${id}`;
-
+                        
                     const response = await fetch(deleteUrl, { method: 'DELETE' });
 
                     if (response.ok) {

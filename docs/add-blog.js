@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(blogData)
                 });
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     showToast('Blog post added successfully!', 'success');
                     addBlogForm.reset();
