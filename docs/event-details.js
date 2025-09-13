@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `).join('');
             }
 
+            // Sanitize the description
+            const cleanDescription = DOMPurify.sanitize(event.description);
+
             eventDetailsContainer.innerHTML = `
                 <div class="event-details-card card">
                     <h1>${event.title}</h1>
@@ -48,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <span><i class="fas fa-user-tie"></i> Organized by: ${event.organizer}</span>
                     </p>
                     <div class="event-full-description">
-                        ${event.description}
+                        ${cleanDescription}
                     </div>
                     <div class="event-actions-detail">
                         ${loggedInUserEmail ? 

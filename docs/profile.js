@@ -72,7 +72,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const populateProfileData = (data) => {
         document.getElementById('full_name').textContent = data.full_name || 'Not set';
         document.getElementById('email').textContent = data.email || 'Not set';
-        document.getElementById('bio').textContent = data.bio || 'Not set';
+        
+        // Sanitize the bio before displaying it
+        document.getElementById('bio').innerHTML = DOMPurify.sanitize(data.bio || 'Not set');
+    
         document.getElementById('current_company').textContent = data.current_company || 'Not set';
         document.getElementById('job_title').textContent = data.job_title || 'Not set';
         document.getElementById('city').textContent = data.city || 'Not set';
@@ -81,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('major').textContent = data.major || 'Not set';
         document.getElementById('graduation_year').textContent = data.graduation_year || 'Not set';
         document.getElementById('degree').textContent = data.degree || 'Not set';
-
+    
         if (data.profile_pic_url) {
             profilePic.src = `http://localhost:3000/${data.profile_pic_url}`;
         } else {

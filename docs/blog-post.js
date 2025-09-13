@@ -15,11 +15,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.title = post.title; // Update page title
 
         const postDate = new Date(post.created_at).toLocaleDateString();
+        
+        // Sanitize the content before rendering
+        const cleanContent = DOMPurify.sanitize(post.content);
+
         postContainer.innerHTML = `
             <article class="blog-post-full card">
                 <h1>${post.title}</h1>
                 <p class="post-meta">By ${post.author} on ${postDate}</p>
-                <div class="post-content">${post.content}</div>
+                <div class="post-content">${cleanContent}</div>
             </article>
         `;
     } catch (error) {

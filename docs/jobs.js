@@ -15,20 +15,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const applyUrl = `apply.html?job_id=${job.job_id}&title=${encodeURIComponent(job.title)}`;
 
+                // Sanitize the description
+                const cleanDescription = DOMPurify.sanitize(job.description);
+
                 jobCard.innerHTML = `
                     <h3>${job.title}</h3>
                     <p class="job-company"><i class="fas fa-building"></i> ${job.company}</p>
                     <p class="job-location"><i class="fas fa-map-marker-alt"></i> ${job.location}</p>
-                    <p class="job-description">${job.description}</p>
+                    <p class="job-description">${cleanDescription}</p>
                     <a href="${applyUrl}" class="btn btn-primary apply-btn">Apply Now</a>
                 `;
                 jobsGrid.appendChild(jobCard);
             });
         } else {
-            messageDiv.innerHTML = '<p class="info-message">No jobs posted at this time.</p>';
+            if (messageDiv) {
+                messageDiv.innerHTML = '<p class="info-message">No jobs posted at this time.</p>';
+            }
         }
     } catch (error) {
         console.error('Error fetching jobs:', error);
-        messageDiv.innerHTML = '<p class="info-message error">Failed to load jobs. Please try again later.</p>';
+        if (messageDiv) {
+            messageDiv.innerHTML = '<p class="info-message error">Failed to load jobs. Please try again later.</p>';
+        }
     }
 });

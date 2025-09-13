@@ -15,12 +15,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const progress = (campaign.current_amount / campaign.goal_amount) * 100;
                     const imageUrl = campaign.image_url || 'https://via.placeholder.com/400x200?text=Alumni+Cause';
+                    
+                    // Sanitize the description
+                    const cleanDescription = DOMPurify.sanitize(campaign.description);
 
                     campaignCard.innerHTML = `
                         <img src="${imageUrl}" alt="${campaign.title}" class="campaign-image">
                         <div class="campaign-content">
                             <h3>${campaign.title}</h3>
-                            <p>${campaign.description.substring(0, 120)}...</p>
+                            <p>${cleanDescription.substring(0, 120)}...</p>
                             <div class="progress-bar">
                                 <div class="progress-bar-fill" style="width: ${progress.toFixed(2)}%;"></div>
                             </div>
