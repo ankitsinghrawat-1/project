@@ -295,7 +295,7 @@ app.delete('/api/events/:id/rsvp', async (req, res) => {
 app.get('/api/events/:id/attendees', async (req, res) => {
     try {
         const [attendees] = await pool.query(`
-            SELECT u.full_name, u.profile_pic_url
+            SELECT u.full_name, u.profile_pic_url, u.email
             FROM users u
             JOIN event_rsvps er ON u.user_id = er.user_id
             WHERE er.event_id = ?
@@ -570,7 +570,7 @@ app.put('/api/profile/:email', upload.single('profile_picture'), async (req, res
 
 app.get('/api/events/recent', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT event_id, title, date, location FROM events ORDER BY date DESC LIMIT 3');
+        const [rows] = await pool.query('SELECT event_id, title, date, location, organizer FROM events ORDER BY date DESC LIMIT 3');
         const events = rows.map(row => ({
             ...row,
             date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -613,7 +613,7 @@ app.get('/api/jobs/recent', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT event_id, title, description, date, location FROM events ORDER BY date DESC');
+        const [rows] = await pool.query('SELECT event_id, title, description, date, location, organizer FROM events ORDER BY date DESC');
         const events = rows.map(row => ({
             ...row,
             date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })

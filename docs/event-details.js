@@ -18,23 +18,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loggedInUserEmail ? fetch(`http://localhost:3000/api/user/rsvps?email=${encodeURIComponent(loggedInUserEmail)}`) : Promise.resolve({ ok: false })
             ]);
 
-            if (!eventRes.ok) throw new Error('Failed to load event details.');
+            if (!eventRes.ok) {
+                throw new Error('Failed to load event details.');
+            }
 
             const event = await eventRes.json();
-            const attendees = await attendeesRes.json();
+            // Safely get attendees and rsvps, defaulting to empty arrays/sets if fetches fail
+            const attendees = attendeesRes.ok ? await attendeesRes.json() : [];
             const userRsvps = rsvpsRes.ok ? new Set(await rsvpsRes.json()) : new Set();
             
-            const isRsvpd = userRsvps.has(event.event_id);
+            const isRsvpd = userRsvps.has(parseInt(event.event_id));
 
             document.title = event.title; // Update page title
 
             let attendeesHTML = '<h4>No attendees yet.</h4>';
             if (attendees.length > 0) {
                 attendeesHTML = attendees.map(attendee => `
-                    <div class="attendee-item">
+                    <a href="view-profile.html?email=${attendee.email}" class="attendee-item">
                         <img src="${attendee.profile_pic_url ? `http://localhost:3000/${attendee.profile_pic_url}` : 'https://via.placeholder.com/50'}" alt="${attendee.full_name}" class="attendee-pic">
                         <span>${attendee.full_name}</span>
-                    </div>
+                    </a>
                 `).join('');
             }
 
