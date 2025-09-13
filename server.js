@@ -561,6 +561,25 @@ app.get('/api/events/recent', async (req, res) => {
     }
 });
 
+app.post('/api/events/by-ids', async (req, res) => {
+    const { event_ids } = req.body;
+    if (!event_ids || event_ids.length === 0) {
+        return res.json([]);
+    }
+    try {
+        const placeholders = event_ids.map(() => '?').join(',');
+        const [rows] = await pool.query(`SELECT event_id, title, date, location FROM events WHERE event_id IN (${placeholders}) ORDER BY date DESC`, event_ids);
+        const events = rows.map(row => ({
+            ...row,
+            date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+        }));
+        res.json(events);
+    } catch (error) {
+        console.error('Error fetching events by IDs:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.get('/api/jobs/recent', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT job_id, title, company, location FROM jobs ORDER BY created_at DESC LIMIT 3');

@@ -74,7 +74,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const fetchMyRsvps = async () => {
+        const myEventsList = document.getElementById('my-events-list');
+        try {
+            const rsvpResponse = await fetch(`http://localhost:3000/api/user/rsvps?email=${encodeURIComponent(userEmail)}`);
+            const rsvpEventIds = await rsvpResponse.json();
+
+            if (rsvpEventIds.length > 0) {
+                const eventsResponse = await fetch('http://localhost:3000/api/events/by-ids', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event_ids: rsvpEventIds })
+                });
+                const events = await eventsResponse.json();
+                myEventsList.innerHTML = '';
+                events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${event.title}</strong> - ${event.location} <br><small>${event.date}</small>`;
+                    myEventsList.appendChild(li);
+                });
+            } else {
+                myEventsList.innerHTML = '<li>You have not responded to any upcoming events yet.</li>';
+            }
+        } catch (error) {
+            console.error('Error fetching your RSVP\'d events:', error);
+            myEventsList.innerHTML = '<li>Could not load your events.</li>';
+        }
+    };
+
     fetchUserProfile();
     fetchRecentEvents();
     fetchRecentJobs();
+    fetchMyRsvps();
 });
