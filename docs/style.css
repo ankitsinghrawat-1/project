@@ -1833,3 +1833,61 @@ body main {
     background-color: #eef2f5;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
+
+
+/* --- New Management Page Styles --- */
+.management-main {
+    padding: 3rem 0;
+}
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+.management-header h2 {
+    margin: 0;
+}
+.management-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.management-table th, .management-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.management-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+}
+.management-table tbody tr:hover {
+    background-color: #fcfcfc;
+}
+.management-table .info-message {
+    text-align: center;
+}
+
+/* --- Refactored Admin Dashboard --- */
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.management-card {
+    display: flex;
+    flex-direction: column;
+}
+.management-card h3 {
+    margin-top: 0;
+}
+.management-card p {
+    flex-grow: 1;
+    color: var(--subtle-text-color);
+    margin-bottom: 1.5rem;
+}
+.management-card .btn {
+    margin-top: auto;
+}
