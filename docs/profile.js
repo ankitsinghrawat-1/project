@@ -8,16 +8,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pfpUpload = document.getElementById('profile_picture');
     const privacyForm = document.getElementById('privacy-form');
     const privacyMessage = document.getElementById('privacy-message');
+    const passwordForm = document.getElementById('password-form');
 
-    const displayMessage = (message, type = 'error') => {
-        const messageContainer = document.getElementById('message');
+    const displayMessage = (message, type = 'error', containerId = 'message') => {
+        const messageContainer = document.getElementById(containerId);
         messageContainer.textContent = message;
         messageContainer.className = `form-message ${type}`;
         setTimeout(() => {
             messageContainer.textContent = '';
             messageContainer.className = 'form-message';
         }, 5000);
-    };
+    }
 
     if (!userEmail) {
         window.location.href = 'login.html';
@@ -215,4 +216,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             privacyMessage.textContent = 'An error occurred while saving.';
         }
     });
+
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                displayMessage('New passwords do not match.', 'error', 'message');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        currentPassword,
+                        newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayMessage(result.message, 'success', 'message');
+                    passwordForm.reset();
+                } else {
+                    displayMessage(result.message, 'error', 'message');
+                }
+            } catch (error) {
+                displayMessage('An error occurred. Please try again.', 'error', 'message');
+            }
+        });
+    }
 });

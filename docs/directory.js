@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const alumniListContainer = document.getElementById('directory-list');
     const searchInput = document.getElementById('directory-search-input');
+    const universityFilter = document.getElementById('university-filter');
+    const majorFilter = document.getElementById('major-filter');
+    const yearFilter = document.getElementById('year-filter');
+    const cityFilter = document.getElementById('city-filter');
     const searchButton = document.getElementById('directory-search-button');
     const noResultsMessage = document.getElementById('no-results-message');
     const loadingMessage = document.getElementById('loading-message');
 
-    const fetchAndRenderAlumni = async (query = '') => {
+    const fetchAndRenderAlumni = async () => {
         if (!alumniListContainer || !loadingMessage || !noResultsMessage) {
             console.error('Core directory elements not found!');
             return;
@@ -15,8 +19,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         alumniListContainer.innerHTML = '';
         noResultsMessage.style.display = 'none';
 
+        const query = searchInput.value;
+        const university = universityFilter.value;
+        const major = majorFilter.value;
+        const year = yearFilter.value;
+        const city = cityFilter.value;
+
+        const params = new URLSearchParams({
+            query,
+            university,
+            major,
+            graduation_year: year,
+            city
+        });
+
         try {
-            const response = await fetch(`http://localhost:3000/api/alumni?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`http://localhost:3000/api/alumni?${params.toString()}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -58,17 +76,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchAndRenderAlumni();
 
     // Setup search functionality
-    if (searchButton && searchInput) {
-        searchButton.addEventListener('click', () => {
-            fetchAndRenderAlumni(searchInput.value);
-        });
-
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                fetchAndRenderAlumni(searchInput.value);
-            }
-        });
+    if (searchButton) {
+        searchButton.addEventListener('click', fetchAndRenderAlumni);
     } else {
-        console.error('Search input or button not found!');
+        console.error('Search button not found!');
     }
+
+    // Add event listener for 'Enter' key on all filter inputs
+    const filterInputs = [searchInput, universityFilter, majorFilter, yearFilter, cityFilter];
+    filterInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent default form submission
+                    fetchAndRenderAlumni();
+                }
+            });
+        }
+    });
 });

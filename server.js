@@ -129,17 +129,76 @@ app.put('/api/privacy/:email', async (req, res) => {
     }
 });
 
+// --- BLOG ENDPOINTS ---
+
+app.get('/api/blogs', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT b.blog_id, b.title, b.content, u.full_name AS author, b.created_at FROM blogs b JOIN users u ON b.author_id = u.user_id ORDER BY b.created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/blogs/:id', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT b.blog_id, b.title, b.content, u.full_name AS author, b.created_at FROM blogs b JOIN users u ON b.author_id = u.user_id WHERE b.blog_id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Blog post not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching blog post:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/api/blogs', async (req, res) => {
+    const { title, content, author_email } = req.body;
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [author_email]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: 'Author not found' });
+        }
+        const author_id = user[0].user_id;
+        await pool.query('INSERT INTO blogs (title, content, author_id) VALUES (?, ?, ?)', [title, content, author_id]);
+        res.status(201).json({ message: 'Blog post created successfully' });
+    } catch (error) {
+        console.error('Error creating blog post:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // --- MODIFIED ENDPOINTS TO RESPECT PRIVACY ---
 
 app.get('/api/alumni', async (req, res) => {
-    const { query } = req.query;
+    const { query, university, major, graduation_year, city } = req.query;
     try {
         let sql = 'SELECT * FROM users WHERE is_profile_public = TRUE';
         const params = [];
+
         if (query) {
-            sql += ' AND (full_name LIKE ? OR current_company LIKE ? OR major LIKE ?)';
-            params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+            sql += ' AND (full_name LIKE ? OR current_company LIKE ?)';
+            params.push(`%${query}%`, `%${query}%`);
         }
+        if (university) {
+            sql += ' AND university LIKE ?';
+            params.push(`%${university}%`);
+        }
+        if (major) {
+            sql += ' AND major LIKE ?';
+            params.push(`%${major}%`);
+        }
+        if (graduation_year) {
+            sql += ' AND graduation_year = ?';
+            params.push(graduation_year);
+        }
+        if (city) {
+            sql += ' AND city LIKE ?';
+            params.push(`%${city}%`);
+        }
+
         const [rows] = await pool.query(sql, params);
         
         const publicProfiles = rows.map(user => {
@@ -195,6 +254,41 @@ app.get('/api/profile/:email', async (req, res) => {
 
 
 // --- ALL OTHER ENDPOINTS ---
+
+app.post('/api/change-password', async (req, res) => {
+    const { email, currentPassword, newPassword } = req.body;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const user = rows[0];
+        const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Incorrect current password.' });
+        }
+
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+        await pool.query('UPDATE users SET password_hash = ? WHERE email = ?', [newPasswordHash, email]);
+
+        res.status(200).json({ message: 'Password updated successfully!' });
+
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/api/forgot-password', (req, res) => {
+    const { email } = req.body;
+    // In a real application, you would add logic here to send a password reset email.
+    // For now, we'll just simulate a success response.
+    console.log(`Password reset requested for email: ${email}`);
+    res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+});
 
 app.post('/api/jobs/:job_id/apply', upload.single('resume'), async (req, res) => {
     const { job_id } = req.params;

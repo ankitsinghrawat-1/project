@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (events.length > 0) {
                 events.forEach(event => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${event.title}</strong> - ${event.location} <br><small>${event.date}</small>`;
+                    li.innerHTML = `<strong>${event.title}</strong> - ${event.location} <br><small>${new Date(event.date).toLocaleDateString()}</small>`;
                     eventsList.appendChild(li);
                 });
             } else {
