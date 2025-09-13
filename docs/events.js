@@ -9,14 +9,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (events.length > 0) {
             events.forEach(event => {
-                const eventCard = document.createElement('div');
-                // FIX: Added the 'card' class to apply the card styling
-                eventCard.classList.add('event-card', 'card'); 
+                const eventCard = document.createElement('a'); // Make the whole card a link
+                eventCard.href = `event-details.html?id=${event.event_id}`;
+                eventCard.classList.add('event-card', 'card', 'event-card-link'); 
+                
+                // Create a summary of the description
+                const summary = event.description.substring(0, 100) + (event.description.length > 100 ? '...' : '');
+
                 eventCard.innerHTML = `
                     <h3>${event.title}</h3>
                     <p><i class="fas fa-calendar-alt"></i> ${event.date}</p>
                     <p><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
-                    <p>${event.description}</p>
+                    <p class="event-summary">${summary}</p>
+                    <span class="view-details-link">View Details &rarr;</span>
                 `;
                 eventsList.appendChild(eventCard);
             });

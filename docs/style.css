@@ -1681,3 +1681,67 @@ body main {
     color: var(--subtle-text-color);
     margin-top: 0.25rem;
 }
+
+/* --- Event Details Page --- */
+.event-details-card h1 {
+    margin-top: 0;
+}
+.event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    color: var(--subtle-text-color);
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.event-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.event-full-description {
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+.attendees-section {
+    margin-top: 2rem;
+}
+.attendees-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.attendee-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--background-color);
+    padding: 0.5rem;
+    border-radius: var(--border-radius-medium);
+}
+.attendee-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* --- Event Card on Main Events Page --- */
+.event-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+}
+.view-details-link {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 1rem;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+.event-card-link:hover .view-details-link {
+    transform: translateX(5px);
+}

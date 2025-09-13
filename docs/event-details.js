@@ -1,0 +1,102 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    const eventDetailsContainer = document.getElementById('event-details-container');
+    const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('id');
+
+    if (!eventId) {
+        eventDetailsContainer.innerHTML = '<p class="info-message error">Event not found.</p>';
+        return;
+    }
+
+    const fetchEventData = async () => {
+        try {
+            // Fetch event details and attendees in parallel
+            const [eventRes, attendeesRes, rsvpsRes] = await Promise.all([
+                fetch(`http://localhost:3000/api/events/${eventId}`),
+                fetch(`http://localhost:3000/api/events/${eventId}/attendees`),
+                loggedInUserEmail ? fetch(`http://localhost:3000/api/user/rsvps?email=${encodeURIComponent(loggedInUserEmail)}`) : Promise.resolve({ ok: false })
+            ]);
+
+            if (!eventRes.ok) throw new Error('Failed to load event details.');
+
+            const event = await eventRes.json();
+            const attendees = await attendeesRes.json();
+            const userRsvps = rsvpsRes.ok ? new Set(await rsvpsRes.json()) : new Set();
+            
+            const isRsvpd = userRsvps.has(event.event_id);
+
+            document.title = event.title; // Update page title
+
+            let attendeesHTML = '<h4>No attendees yet.</h4>';
+            if (attendees.length > 0) {
+                attendeesHTML = attendees.map(attendee => `
+                    <div class="attendee-item">
+                        <img src="${attendee.profile_pic_url ? `http://localhost:3000/${attendee.profile_pic_url}` : 'https://via.placeholder.com/50'}" alt="${attendee.full_name}" class="attendee-pic">
+                        <span>${attendee.full_name}</span>
+                    </div>
+                `).join('');
+            }
+
+            eventDetailsContainer.innerHTML = `
+                <div class="event-details-card card">
+                    <h1>${event.title}</h1>
+                    <p class="event-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${event.date}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                        <span><i class="fas fa-user-tie"></i> Organized by: ${event.organizer}</span>
+                    </p>
+                    <div class="event-full-description">
+                        ${event.description}
+                    </div>
+                    <div class="event-actions-detail">
+                        ${loggedInUserEmail ? 
+                            `<button class="btn ${isRsvpd ? 'btn-secondary' : 'btn-primary'} respond-btn">
+                                ${isRsvpd ? 'Cancel Response' : 'Respond'}
+                             </button>` : '<p><a href="login.html">Log in</a> to respond to this event.</p>'
+                        }
+                    </div>
+                </div>
+                <div class="attendees-section card">
+                    <h3>Attendees (${attendees.length})</h3>
+                    <div class="attendees-list">
+                        ${attendeesHTML}
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error fetching event data:', error);
+            eventDetailsContainer.innerHTML = '<p class="info-message error">Could not load event details. Please try again.</p>';
+        }
+    };
+
+    // Handle Respond button clicks using event delegation
+    eventDetailsContainer.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('respond-btn')) {
+            const isRsvpd = e.target.textContent.trim() === 'Cancel Response';
+            const method = isRsvpd ? 'DELETE' : 'POST';
+            
+            try {
+                const response = await fetch(`http://localhost:3000/api/events/${eventId}/rsvp`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: loggedInUserEmail })
+                });
+
+                if (response.ok) {
+                    // Refresh the entire page content to show the update
+                    fetchEventData(); 
+                } else {
+                    const result = await response.json();
+                    alert(`Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error responding to event:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+    });
+
+    fetchEventData();
+});
