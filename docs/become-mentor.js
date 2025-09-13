@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('become-mentor-form');
-    const messageDiv = document.getElementById('message');
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
 
     if (!loggedInUserEmail) {
@@ -20,17 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
-            messageDiv.textContent = result.message;
 
             if (response.ok) {
-                messageDiv.className = 'form-message success';
+                showToast(result.message, 'success');
                 setTimeout(() => window.location.href = 'mentors.html', 2000);
             } else {
-                messageDiv.className = 'form-message error';
+                showToast(result.message, 'error');
             }
         } catch (error) {
-            messageDiv.className = 'form-message error';
-            messageDiv.textContent = 'An error occurred. Please try again.';
+            showToast('An error occurred. Please try again.', 'error');
             console.error('Error registering as mentor:', error);
         }
     });

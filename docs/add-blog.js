@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const addBlogForm = document.getElementById('add-blog-form');
-    const messageDiv = document.getElementById('message');
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
 
     if (!loggedInUserEmail) {
@@ -27,17 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 
                 if (response.ok) {
-                    messageDiv.textContent = 'Blog post added successfully!';
-                    messageDiv.className = 'form-message success';
+                    showToast('Blog post added successfully!', 'success');
                     addBlogForm.reset();
                 } else {
-                    messageDiv.textContent = `Error: ${result.message}`;
-                    messageDiv.className = 'form-message error';
+                    showToast(`Error: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error adding blog post:', error);
-                messageDiv.textContent = 'Failed to add blog post. Please try again.';
-                messageDiv.className = 'form-message error';
+                showToast('Failed to add blog post. Please try again.', 'error');
             }
         });
     }

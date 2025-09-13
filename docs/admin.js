@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('total-users').textContent = stats.totalUsers;
             document.getElementById('total-events').textContent = stats.totalEvents;
             document.getElementById('total-jobs').textContent = stats.totalJobs;
+            document.getElementById('total-mentors').textContent = stats.totalMentors;
             document.getElementById('total-applications').textContent = stats.totalApplications;
         } catch (error) {
             console.error('Error fetching admin stats:', error);

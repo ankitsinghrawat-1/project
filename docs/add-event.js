@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const addEventForm = document.getElementById('add-event-form');
-    const messageDiv = document.getElementById('message');
 
     if (addEventForm) {
         addEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const eventData = {
                 title: document.getElementById('title').value,
                 date: document.getElementById('date').value,
@@ -21,19 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(eventData)
                 });
                 const result = await response.json();
-                
+
                 if (response.ok) {
-                    messageDiv.textContent = 'Event added successfully!';
-                    messageDiv.className = 'form-message success';
+                    showToast('Event added successfully!', 'success');
                     addEventForm.reset();
                 } else {
-                    messageDiv.textContent = `Error: ${result.message}`;
-                    messageDiv.className = 'form-message error';
+                    showToast(`Error: ${result.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Error adding event:', error);
-                messageDiv.textContent = 'Failed to add event. Please try again.';
-                messageDiv.className = 'form-message error';
+                showToast('Failed to add event. Please try again.', 'error');
             }
         });
     }
