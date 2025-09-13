@@ -764,7 +764,7 @@ main {
 }
 
 .admin-container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
@@ -1744,4 +1744,74 @@ body main {
 }
 .event-card-link:hover .view-details-link {
     transform: translateX(5px);
+}
+
+/* --- New Admin Dashboard Styles --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--surface-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--box-shadow-subtle);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-elevated);
+}
+
+.stat-card-icon {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    background-color: rgba(245, 166, 35, 0.1);
+    height: 60px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.stat-card-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--subtle-text-color);
+    font-weight: 500;
+}
+
+.stat-card-info p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-message {
+    text-align: center;
+    padding: 1rem;
+    color: var(--subtle-text-color);
 }

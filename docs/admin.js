@@ -5,6 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const jobListContainer = document.getElementById('job-list');
     const applicationListContainer = document.getElementById('application-list');
 
+    const fetchAdminStats = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/admin/stats');
+            const stats = await response.json();
+
+            document.getElementById('total-users').textContent = stats.totalUsers;
+            document.getElementById('total-events').textContent = stats.totalEvents;
+            document.getElementById('total-jobs').textContent = stats.totalJobs;
+            document.getElementById('total-mentors').textContent = stats.totalMentors;
+            document.getElementById('total-applications').textContent = stats.totalApplications;
+        } catch (error) {
+            console.error('Error fetching admin stats:', error);
+        }
+    };
+
     const fetchAndRenderList = async (endpoint, container, renderFunction) => {
         try {
             const response = await fetch(`http://localhost:3000/api/${endpoint}`);
@@ -16,11 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.appendChild(renderFunction(item));
                 });
             } else {
-                container.innerHTML = '<p>No items to display.</p>';
+                container.innerHTML = '<p class="info-message">No items to display.</p>';
             }
         } catch (error) {
             console.error(`Error fetching ${endpoint}:`, error);
-            container.innerHTML = `<p class="error-message">Failed to load ${endpoint}.</p>`;
+            container.innerHTML = `<p class="info-message error">Failed to load ${endpoint}.</p>`;
         }
     };
 
@@ -36,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully!`);
-                loadAdminData();
+                loadAdminData(); // Refresh all data
             } else {
                 const result = await response.json();
                 alert(`Error: ${result.message}`);
@@ -63,10 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderEvent = (event) => {
         const item = document.createElement('div');
         item.className = 'admin-list-item';
+        const eventDate = new Date(event.date).toLocaleDateString();
         item.innerHTML = `
             <div>
                 <strong>${event.title}</strong> - ${event.location}
-                <br><small>${new Date(event.date).toLocaleDateString()}</small>
+                <br><small>${eventDate}</small>
             </div>
             <button class="btn btn-danger btn-sm delete-btn" data-id="${event.event_id}" data-type="event">Delete</button>
         `;
@@ -101,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadAdminData = () => {
+        fetchAdminStats();
         fetchAndRenderList('admin/users', userListContainer, renderUser);
         fetchAndRenderList('events', eventListContainer, renderEvent);
         fetchAndRenderList('jobs', jobListContainer, renderJob);

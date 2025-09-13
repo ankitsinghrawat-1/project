@@ -385,6 +385,27 @@ app.post('/api/jobs/:job_id/apply', upload.single('resume'), async (req, res) =>
     }
 });
 
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const [users] = await pool.query('SELECT COUNT(*) as count FROM users');
+        const [events] = await pool.query('SELECT COUNT(*) as count FROM events');
+        const [jobs] = await pool.query('SELECT COUNT(*) as count FROM jobs');
+        const [mentors] = await pool.query('SELECT COUNT(*) as count FROM mentors');
+        const [applications] = await pool.query('SELECT COUNT(*) as count FROM job_applications');
+
+        res.json({
+            totalUsers: users[0].count,
+            totalEvents: events[0].count,
+            totalJobs: jobs[0].count,
+            totalMentors: mentors[0].count,
+            totalApplications: applications[0].count
+        });
+    } catch (error) {
+        console.error('Error fetching admin stats:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.get('/api/admin/applications', async (req, res) => {
     try {
         const [rows] = await pool.query(`
