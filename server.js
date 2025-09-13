@@ -27,9 +27,18 @@ const loginLimiter = rateLimit({
     message: { message: 'Too many login attempts from this IP, please try again after 15 minutes' }
 });
 
+const allowedOrigins = [
+    'http://localhost:3000', // For local development
+    'https://your-username.github.io' // YOUR LIVE GITHUB PAGES URL
+];
+
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || origin.startsWith('http://localhost')) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        // Check if the origin is in our allowed list
+        if (allowedOrigins.some(allowedOrigin => origin.startsWith(allowedOrigin))) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
