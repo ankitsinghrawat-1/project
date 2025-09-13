@@ -98,6 +98,75 @@ app.get('/api/mentors', async (req, res) => {
     }
 });
 
+app.get('/api/mentors/status', async (req, res) => {
+    const { email } = req.query;
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
+        if (user.length === 0) {
+            return res.json({ isMentor: false });
+        }
+        const [mentor] = await pool.query('SELECT * FROM mentors WHERE user_id = ?', [user[0].user_id]);
+        res.json({ isMentor: mentor.length > 0 });
+    } catch (error) {
+        console.error('Error checking mentor status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/mentors/profile', async (req, res) => {
+    const { email } = req.query;
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const [mentor] = await pool.query('SELECT expertise_areas FROM mentors WHERE user_id = ?', [user[0].user_id]);
+        if (mentor.length === 0) {
+            return res.status(404).json({ message: 'Mentor profile not found' });
+        }
+        res.json(mentor[0]);
+    } catch (error) {
+        console.error('Error fetching mentor profile:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.put('/api/mentors/profile', async (req, res) => {
+    const { email, expertise_areas } = req.body;
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const [result] = await pool.query('UPDATE mentors SET expertise_areas = ? WHERE user_id = ?', [expertise_areas, user[0].user_id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Mentor profile not found to update.' });
+        }
+        res.status(200).json({ message: 'Mentor profile updated successfully!' });
+    } catch (error) {
+        console.error('Error updating mentor profile:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/api/mentors/profile', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
+        if (user.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        await pool.query('DELETE FROM mentors WHERE user_id = ?', [user[0].user_id]);
+        res.status(200).json({ message: 'You have been unlisted as a mentor.' });
+    } catch (error) {
+        console.error('Error unlisting mentor:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // --- PRIVACY SETTINGS ENDPOINTS ---
 
 app.get('/api/privacy/:email', async (req, res) => {
@@ -546,7 +615,7 @@ app.put('/api/profile/:email', upload.single('profile_picture'), async (req, res
         if (current_company !== undefined) updateData.current_company = current_company;
         if (job_title !== undefined) updateData.job_title = job_title;
         if (city !== undefined) updateData.city = city;
-        if (linkedin !== undefined) updateData.linkedin = linkedin;
+        if (linkedin !== undefined) updateData.linkedin = linkedin || null;
         if (university !== undefined) updateData.university = university;
         if (major !== undefined) updateData.major = major;
         if (graduation_year !== undefined) updateData.graduation_year = graduation_year;

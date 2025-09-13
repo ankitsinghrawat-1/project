@@ -2,6 +2,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mentorsListContainer = document.getElementById('mentors-list');
     const loadingMessage = document.getElementById('loading-message');
     const noResultsMessage = document.getElementById('no-results-message');
+    const mentorActionArea = document.getElementById('mentor-action-area');
+    const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
+
+    const checkMentorStatus = async () => {
+        if (!loggedInUserEmail || !mentorActionArea) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/mentors/status?email=${encodeURIComponent(loggedInUserEmail)}`);
+            const data = await response.json();
+
+            if (data.isMentor) {
+                mentorActionArea.innerHTML = `<a href="edit-mentor.html" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Mentor Profile</a>`;
+            } else {
+                mentorActionArea.innerHTML = `<a href="become-mentor.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> Become a Mentor</a>`;
+            }
+        } catch (error) {
+            console.error('Error checking mentor status:', error);
+            mentorActionArea.innerHTML = `<a href="become-mentor.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> Become a Mentor</a>`;
+        }
+    };
 
     const fetchAndRenderMentors = async () => {
         loadingMessage.style.display = 'block';
@@ -43,5 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    checkMentorStatus();
     fetchAndRenderMentors();
 });
