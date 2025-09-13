@@ -29,7 +29,7 @@ const loginLimiter = rateLimit({
 
 const allowedOrigins = [
     'http://localhost:3000', // For local development
-    'https://your-username.github.io' // YOUR LIVE GITHUB PAGES URL
+    'https://ankitsinghrawat-1.github.io' // YOUR LIVE GITHUB PAGES URL
 ];
 
 const corsOptions = {
