@@ -751,7 +751,7 @@ app.get('/api/jobs/recent', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT event_id, title, description, date, location, organizer FROM events ORDER BY date DESC');
+        const [rows] = await pool.query('SELECT * FROM events ORDER BY date DESC');
         const events = rows.map(row => ({
             ...row,
             date: new Date(row.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
