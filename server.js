@@ -27,24 +27,27 @@ const loginLimiter = rateLimit({
     message: { message: 'Too many login attempts from this IP, please try again after 15 minutes' }
 });
 
+// --- CORRECTED CORS CONFIGURATION ---
 const allowedOrigins = [
-    'http://localhost:3000', // For local development
-    'https://ankitsinghrawat-1.github.io' // YOUR LIVE GITHUB PAGES URL
+    // Add your LOCAL development origins here if you use any other than default
+    'http://127.0.0.1:5500', 
+    'http://localhost:3000',
+    // !! IMPORTANT !! REPLACE THIS WITH YOUR ACTUAL GITHUB PAGES URL
+    'https://ankitsinghrawat-1.github.io' 
 ];
 
 const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server requests)
         if (!origin) return callback(null, true);
 
-        // Check if the origin is in our allowed list
-        if (allowedOrigins.some(allowedOrigin => origin.startsWith(allowedOrigin))) {
+        if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -71,7 +74,6 @@ const resumeDir = path.join(__dirname, 'uploads', 'resumes');
 fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
 fs.mkdir(resumeDir, { recursive: true }).catch(console.error);
 
-// Secure File Filter
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -100,21 +102,18 @@ const upload = multer({
     limits: { fileSize: 1024 * 1024 * 5 } // 5MB file size limit
 });
 
-// --- MENTORSHIP ENDPOINTS ---
 
+// --- MENTORSHIP ENDPOINTS ---
 app.post('/api/mentors', async (req, res) => {
     const { email, expertise_areas } = req.body;
     try {
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        const user_id = user[0].user_id;
-        const [existingMentor] = await pool.query('SELECT * FROM mentors WHERE user_id = ?', [user_id]);
-        if (existingMentor.length > 0) {
-            return res.status(409).json({ message: 'You are already registered as a mentor.' });
-        }
-        await pool.query('INSERT INTO mentors (user_id, expertise_areas) VALUES (?, ?)', [user_id, DOMPurify.sanitize(expertise_areas)]);
+        if (user.length === 0) return res.status(404).json({ message: 'User not found' });
+        
+        const [existingMentor] = await pool.query('SELECT * FROM mentors WHERE user_id = ?', [user[0].user_id]);
+        if (existingMentor.length > 0) return res.status(409).json({ message: 'You are already registered as a mentor.' });
+        
+        await pool.query('INSERT INTO mentors (user_id, expertise_areas) VALUES (?, ?)', [user[0].user_id, DOMPurify.sanitize(expertise_areas)]);
         res.status(201).json({ message: 'Successfully registered as a mentor!' });
     } catch (error) {
         console.error('Error registering mentor:', error);
@@ -137,14 +136,11 @@ app.get('/api/mentors', async (req, res) => {
 
 app.get('/api/mentors/status', async (req, res) => {
     const { email } = req.query;
-    if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
-    }
+    if (!email) return res.status(400).json({ message: 'Email is required' });
     try {
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
-            return res.json({ isMentor: false });
-        }
+        if (user.length === 0) return res.json({ isMentor: false });
+        
         const [mentor] = await pool.query('SELECT * FROM mentors WHERE user_id = ?', [user[0].user_id]);
         res.json({ isMentor: mentor.length > 0 });
     } catch (error) {
@@ -157,13 +153,11 @@ app.get('/api/mentors/profile', async (req, res) => {
     const { email } = req.query;
     try {
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (user.length === 0) return res.status(404).json({ message: 'User not found' });
+
         const [mentor] = await pool.query('SELECT expertise_areas FROM mentors WHERE user_id = ?', [user[0].user_id]);
-        if (mentor.length === 0) {
-            return res.status(404).json({ message: 'Mentor profile not found' });
-        }
+        if (mentor.length === 0) return res.status(404).json({ message: 'Mentor profile not found' });
+        
         res.json(mentor[0]);
     } catch (error) {
         console.error('Error fetching mentor profile:', error);
@@ -175,13 +169,11 @@ app.put('/api/mentors/profile', async (req, res) => {
     const { email, expertise_areas } = req.body;
     try {
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (user.length === 0) return res.status(404).json({ message: 'User not found' });
+        
         const [result] = await pool.query('UPDATE mentors SET expertise_areas = ? WHERE user_id = ?', [DOMPurify.sanitize(expertise_areas), user[0].user_id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Mentor profile not found to update.' });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ message: 'Mentor profile not found to update.' });
+        
         res.status(200).json({ message: 'Mentor profile updated successfully!' });
     } catch (error) {
         console.error('Error updating mentor profile:', error);
@@ -193,9 +185,8 @@ app.delete('/api/mentors/profile', async (req, res) => {
     const { email } = req.body;
     try {
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (user.length === 0) return res.status(404).json({ message: 'User not found' });
+        
         await pool.query('DELETE FROM mentors WHERE user_id = ?', [user[0].user_id]);
         res.status(200).json({ message: 'You have been unlisted as a mentor.' });
     } catch (error) {
@@ -204,15 +195,13 @@ app.delete('/api/mentors/profile', async (req, res) => {
     }
 });
 
-// --- PRIVACY SETTINGS ENDPOINTS ---
 
+// --- PRIVACY & PROFILE ENDPOINTS ---
 app.get('/api/privacy/:email', async (req, res) => {
     const { email } = req.params;
     try {
         const [rows] = await pool.query('SELECT is_profile_public, is_email_visible, is_company_visible, is_location_visible FROM users WHERE email = ?', [email]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
         res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching privacy settings:', error);
@@ -235,8 +224,46 @@ app.put('/api/privacy/:email', async (req, res) => {
     }
 });
 
-// --- BLOG ENDPOINTS ---
+app.put('/api/profile/:email', upload.single('profile_picture'), async (req, res) => {
+    const { email } = req.params;
+    const { full_name, bio, current_company, job_title, city, linkedin, university, major, graduation_year, degree } = req.body;
+    let profile_pic_url = req.file ? `uploads/${req.file.filename}` : undefined;
+    try {
+        const [userRows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (userRows.length === 0) return res.status(404).json({ message: 'User not found' });
+        
+        const user = userRows[0];
+        const updateData = {};
+        if (full_name !== undefined) updateData.full_name = DOMPurify.sanitize(full_name);
+        if (bio !== undefined) updateData.bio = DOMPurify.sanitize(bio);
+        if (current_company !== undefined) updateData.current_company = DOMPurify.sanitize(current_company);
+        if (job_title !== undefined) updateData.job_title = DOMPurify.sanitize(job_title);
+        if (city !== undefined) updateData.city = DOMPurify.sanitize(city);
+        if (linkedin !== undefined) updateData.linkedin = linkedin || null;
+        if (university !== undefined) updateData.university = DOMPurify.sanitize(university);
+        if (major !== undefined) updateData.major = DOMPurify.sanitize(major);
+        if (graduation_year !== undefined) updateData.graduation_year = DOMPurify.sanitize(graduation_year);
+        if (degree !== undefined) updateData.degree = DOMPurify.sanitize(degree);
 
+        if (profile_pic_url) {
+            updateData.profile_pic_url = profile_pic_url;
+            if (user.profile_pic_url) {
+                const oldPicPath = path.join(__dirname, user.profile_pic_url);
+                fs.unlink(oldPicPath).catch(err => console.error("Failed to delete old profile pic:", err));
+            }
+        }
+        if (Object.keys(updateData).length > 0) {
+            await pool.query('UPDATE users SET ? WHERE email = ?', [updateData, email]);
+        }
+        res.status(200).json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ message: 'Internal Server Error', sqlMessage: error.sqlMessage });
+    }
+});
+
+
+// --- BLOG ENDPOINTS ---
 app.get('/api/blogs', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT b.blog_id, b.title, b.content, u.full_name AS author, b.created_at FROM blogs b JOIN users u ON b.author_id = u.user_id ORDER BY b.created_at DESC');
@@ -250,9 +277,7 @@ app.get('/api/blogs', async (req, res) => {
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT b.blog_id, b.title, b.content, u.full_name AS author, b.created_at FROM blogs b JOIN users u ON b.author_id = u.user_id WHERE b.blog_id = ?', [req.params.id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Blog post not found' });
-        }
+        if (rows.length === 0) return res.status(404).json({ message: 'Blog post not found' });
         res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching blog post:', error);
@@ -265,11 +290,9 @@ app.post('/api/blogs', async (req, res) => {
     try {
         const cleanContent = DOMPurify.sanitize(content);
         const [user] = await pool.query('SELECT user_id FROM users WHERE email = ?', [author_email]);
-        if (user.length === 0) {
-            return res.status(404).json({ message: 'Author not found' });
-        }
-        const author_id = user[0].user_id;
-        await pool.query('INSERT INTO blogs (title, content, author_id) VALUES (?, ?, ?)', [DOMPurify.sanitize(title), cleanContent, author_id]);
+        if (user.length === 0) return res.status(404).json({ message: 'Author not found' });
+        
+        await pool.query('INSERT INTO blogs (title, content, author_id) VALUES (?, ?, ?)', [DOMPurify.sanitize(title), cleanContent, user[0].user_id]);
         res.status(201).json({ message: 'Blog post created successfully' });
     } catch (error) {
         console.error('Error creating blog post:', error);
@@ -277,20 +300,17 @@ app.post('/api/blogs', async (req, res) => {
     }
 });
 
-// --- CAMPAIGN ENDPOINTS ---
 
+// --- CAMPAIGN ENDPOINTS ---
 app.post('/api/campaigns', async (req, res) => {
     const { title, description, goal_amount, start_date, end_date, image_url, admin_email } = req.body;
     try {
         const [admin] = await pool.query('SELECT user_id FROM users WHERE email = ? AND role = "admin"', [admin_email]);
-        if (admin.length === 0) {
-            return res.status(403).json({ message: 'Unauthorized: Only admins can create campaigns.' });
-        }
-        const created_by = admin[0].user_id;
+        if (admin.length === 0) return res.status(403).json({ message: 'Unauthorized: Only admins can create campaigns.' });
 
         await pool.query(
             'INSERT INTO campaigns (title, description, goal_amount, start_date, end_date, image_url, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [DOMPurify.sanitize(title), DOMPurify.sanitize(description), goal_amount, start_date, end_date, image_url, created_by]
+            [DOMPurify.sanitize(title), DOMPurify.sanitize(description), goal_amount, start_date, end_date, image_url, admin[0].user_id]
         );
         res.status(201).json({ message: 'Campaign created successfully!' });
     } catch (error) {
@@ -312,9 +332,7 @@ app.get('/api/campaigns', async (req, res) => {
 app.get('/api/campaigns/:id', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM campaigns WHERE campaign_id = ?', [req.params.id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Campaign not found' });
-        }
+        if (rows.length === 0) return res.status(404).json({ message: 'Campaign not found' });
         res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching single campaign:', error);
