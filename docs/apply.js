@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.className = 'form-message info';
 
         try {
-            const response = await fetch(`http://localhost:3000/api/jobs/${jobId}/apply`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}/apply`, {
                 method: 'POST',
                 body: formData
             });

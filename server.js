@@ -27,26 +27,24 @@ const loginLimiter = rateLimit({
     message: { message: 'Too many login attempts from this IP, please try again after 15 minutes' }
 });
 
-// --- CORRECTED CORS CONFIGURATION ---
+// ---CORS CONFIGURATION ---
 const allowedOrigins = [
-    // Add your LOCAL development origins here if you use any other than default
     'http://127.0.0.1:5500', 
     'http://localhost:3000',
-    // !! IMPORTANT !! REPLACE THIS WITH YOUR ACTUAL GITHUB PAGES URL
-    'https://ankitsinghrawat-1.github.io' 
+    'https://ankitsinghrawat-1.github.io' // Your GitHub Pages URL
 ];
 
 const corsOptions = {
     origin: function (origin, callback) {
-      // Check if the incoming origin is in our whitelist
-      if (whitelist.indexOf(origin) !== -1 || !origin) { // `!origin` allows server-to-server or REST tools
+      // Check if the incoming origin is in our allowed list
+      if (allowedOrigins.indexOf(origin) !== -1 || !origin) { 
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS')); // This is the error you were seeing
+        callback(new Error('Not allowed by CORS'));
       }
-    }
-  };
-    credentials: true,
+    },
+    credentials: true 
+};
 
 app.use(cors(corsOptions));
 
@@ -407,6 +405,29 @@ app.get('/api/alumni', async (req, res) => {
         res.json(publicProfiles);
     } catch (error) {
         console.error('Error fetching alumni:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/api/my-profile', async (req, res) => {
+    const { email } = req.query; // Get email from query parameter
+    if (!email) {
+        return res.status(400).json({ message: 'Email query parameter is required.' });
+    }
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+
+        // Return the full user object, ignoring privacy flags,
+        // as this endpoint is only for a user fetching their own data.
+        const userProfile = rows[0];
+        res.json(userProfile);
+
+    } catch (error) {
+        console.error('Error fetching own profile:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

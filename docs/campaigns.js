@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchCampaigns = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/campaigns');
+            const response = await fetch(`${API_BASE_URL}/api/campaigns`);
             const campaigns = await response.json();
 
             campaignsGrid.innerHTML = ''; // Clear existing content

@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const linkedin = document.getElementById('linkedin').value;
 
             try {
-                const response = await fetch('http://localhost:3000/api/onboard', {
+                const response = await fetch(`${API_BASE_URL}/api/onboard`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

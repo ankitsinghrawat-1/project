@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${item.user_email}</td>
                 <td>${item.job_title}</td>
                 <td>${new Date(item.application_date).toLocaleDateString()}</td>
-                <td><a href="http://localhost:3000/${item.resume_path}" target="_blank" class="btn btn-secondary btn-sm">View Resume</a></td>
+                <td><a href="${API_BASE_URL}/${item.resume_path}" target="_blank" class="btn btn-secondary btn-sm">View Resume</a></td>
             </tr>`
     };
 
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!config) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/${config.url}`);
+            const response = await fetch(`${API_BASE_URL}/api/${config.url}`);
             const items = await response.json();
             
             if (items.length > 0) {
@@ -91,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     //  All admin deletions should go through the /api/admin/ route for consistency, except for campaigns.
                     const deleteUrl = (type === 'campaign')
-                        ? `http://localhost:3000/api/campaigns/${id}`
-                        : `http://localhost:3000/api/admin/${type}s/${id}`;
+                        ? `${API_BASE_URL}/api/campaigns/${id}`
+                        : `${API_BASE_URL}/api/admin/${type}s/${id}`;
                         
                     const response = await fetch(deleteUrl, { method: 'DELETE' });
 

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchJobData = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/jobs/${jobId}`);
+            const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`);
             if (!response.ok) throw new Error('Job not found');
             const job = await response.json();
             
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:3000/api/jobs/${jobId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(jobData)

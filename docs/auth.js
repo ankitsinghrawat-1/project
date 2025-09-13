@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             sessionStorage.removeItem('loggedInUserEmail');
             sessionStorage.removeItem('userRole');
             // We still contact the server to clear the httpOnly cookie
-            await fetch('http://localhost:3000/api/logout', { method: 'POST', credentials: 'include' });
+            await fetch(`${API_BASE_URL}/api/logout`, { method: 'POST', credentials: 'include' });
             window.location.href = 'index.html';
         });
     }

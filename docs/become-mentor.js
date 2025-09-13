@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const expertise_areas = document.getElementById('expertise_areas').value;
 
         try {
-            const response = await fetch('http://localhost:3000/api/mentors', {
+            const response = await fetch(`${API_BASE_URL}/api/mentors`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: loggedInUserEmail, expertise_areas })

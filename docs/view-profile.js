@@ -9,13 +9,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchUserProfile = async (email) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/profile/${email}`);
-            
+            const response = await fetch(`${API_BASE_URL}/api/profile/${email}`);
+
             if (response.status === 403) {
                 const privateData = await response.json();
                 document.querySelector('.profile-container-view').innerHTML = `
                     <div class="profile-header-view">
-                        <img class="profile-pic-view" src="${privateData.profile_pic_url ? `http://localhost:3000/${privateData.profile_pic_url}` : 'https://via.placeholder.com/150'}" alt="Profile Picture">
+                        <img class="profile-pic-view" src="${privateData.profile_pic_url ? `${API_BASE_URL}/${privateData.profile_pic_url}` : 'https://via.placeholder.com/150'}" alt="Profile Picture">
                         <h2>${privateData.full_name}</h2>
                         <p class="info-message"><i class="fas fa-lock"></i> This profile is private.</p>
                     </div>
@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error('Failed to fetch user profile');
             }
             const user = await response.json();
-            
+
             document.getElementById('profile-name-view').textContent = user.full_name || 'N/A';
             document.getElementById('profile-subheader').textContent = `${user.job_title || 'N/A'} at ${user.current_company || 'N/A'}`;
-            
+
             // Sanitize the bio before setting it
             document.getElementById('bio-view').innerHTML = DOMPurify.sanitize(user.bio || 'No bio available.');
 
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('current-company-view').textContent = user.current_company || 'N/A';
             document.getElementById('job-title-view').textContent = user.job_title || 'N/A';
             document.getElementById('city-view').textContent = user.city || 'N/A';
-            
+
             const linkedinLink = document.getElementById('linkedin-view');
             if (user.linkedin) {
                 linkedinLink.href = user.linkedin;
@@ -49,12 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 linkedinLink.textContent = 'N/A';
             }
-            
+
             document.getElementById('email-view').textContent = user.university_email || 'N/A';
 
             const profilePic = document.getElementById('profile-pic-view');
             if (user.profile_pic_url) {
-                profilePic.src = `http://localhost:3000/${user.profile_pic_url}`;
+                profilePic.src = `${API_BASE_URL}/${user.profile_pic_url}`;
             } else {
                 profilePic.src = 'https://via.placeholder.com/150';
             }

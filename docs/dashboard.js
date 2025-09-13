@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`);
+            const response = await fetch(`${API_BASE_URL}/api/profile/${userEmail}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch profile');
             }
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const profilePic = document.getElementById('profile-pic');
             if (user.profile_pic_url) {
-                profilePic.src = `http://localhost:3000/${user.profile_pic_url}`;
+                profilePic.src = `${API_BASE_URL}/${user.profile_pic_url}`;
             } else {
                 profilePic.src = 'https://via.placeholder.com/150';
             }
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchRecentEvents = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/events/recent');
+            const response = await fetch(`${API_BASE_URL}/api/events/recent`);
             const events = await response.json();
             const eventsList = document.getElementById('recent-events-list');
             eventsList.innerHTML = '';
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchRecentJobs = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/jobs/recent');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/recent`);
             const jobs = await response.json();
             const jobsList = document.getElementById('recent-jobs-list');
             jobsList.innerHTML = '';
@@ -77,11 +77,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fetchMyRsvps = async () => {
         const myEventsList = document.getElementById('my-events-list');
         try {
-            const rsvpResponse = await fetch(`http://localhost:3000/api/user/rsvps?email=${encodeURIComponent(userEmail)}`);
+            const rsvpResponse = await fetch(`${API_BASE_URL}/api/user/rsvps?email=${encodeURIComponent(userEmail)}`);
             const rsvpEventIds = await rsvpResponse.json();
 
             if (rsvpEventIds.length > 0) {
-                const eventsResponse = await fetch('http://localhost:3000/api/events/by-ids', {
+                const eventsResponse = await fetch(`${API_BASE_URL}/api/events/by-ids`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ event_ids: rsvpEventIds })

@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch current mentor profile to pre-fill the form
     const fetchMentorProfile = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/mentors/profile?email=${encodeURIComponent(loggedInUserEmail)}`);
+            const response = await fetch(`${API_BASE_URL}/api/mentors/profile?email=${encodeURIComponent(loggedInUserEmail)}`);
             if (response.ok) {
                 const profile = await response.json();
                 expertiseAreasInput.value = profile.expertise_areas;
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const expertise_areas = expertiseAreasInput.value;
 
         try {
-            const response = await fetch('http://localhost:3000/api/mentors/profile', {
+            const response = await fetch(`${API_BASE_URL}/api/mentors/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: loggedInUserEmail, expertise_areas })
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     unlistBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to unlist yourself as a mentor? This action cannot be undone.')) {
             try {
-                const response = await fetch('http://localhost:3000/api/mentors/profile', {
+                const response = await fetch('${API_BASE_URL}/api/mentors/profile', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: loggedInUserEmail })

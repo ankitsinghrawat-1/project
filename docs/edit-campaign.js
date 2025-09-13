@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch existing campaign data to populate the form
     const fetchCampaignData = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/campaigns/${campaignId}`);
+            const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}`);
             if (!response.ok) {
                 throw new Error('Campaign not found');
             }
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:3000/api/campaigns/${campaignId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/campaigns/${campaignId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(campaignData)

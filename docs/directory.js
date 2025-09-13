@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         try {
-            const response = await fetch(`http://localhost:3000/api/alumni?${params.toString()}`);
+            const response = await fetch(`${API_BASE_URL}/api/alumni?${params.toString()}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alumnusItem.classList.add('alumnus-list-item');
                     
                     const profilePicUrl = alumnus.profile_pic_url 
-                        ? `http://localhost:3000/${alumnus.profile_pic_url}` 
+                        ? `${API_BASE_URL}/${alumnus.profile_pic_url}` 
                         : 'https://via.placeholder.com/150';
 
                     alumnusItem.innerHTML = `

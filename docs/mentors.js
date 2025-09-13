@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!loggedInUserEmail || !mentorActionArea) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/mentors/status?email=${encodeURIComponent(loggedInUserEmail)}`);
+            const response = await fetch(`${API_BASE_URL}/api/mentors/status?email=${encodeURIComponent(loggedInUserEmail)}`);
             const data = await response.json();
 
             if (data.isMentor) {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingMessage.style.display = 'block';
 
         try {
-            const response = await fetch('http://localhost:3000/api/mentors');
+            const response = await fetch('${API_BASE_URL}/api/mentors');
             const mentors = await response.json();
             
             loadingMessage.style.display = 'none';
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     mentorItem.classList.add('alumnus-list-item');
                     
                     const profilePicUrl = mentor.profile_pic_url 
-                        ? `http://localhost:3000/${mentor.profile_pic_url}` 
+                        ? `${API_BASE_URL}/${mentor.profile_pic_url}` 
                         : 'https://via.placeholder.com/150';
 
                     mentorItem.innerHTML = `

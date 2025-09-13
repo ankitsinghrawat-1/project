@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const blogListContainer = document.getElementById('blog-list');
 
     try {
-        const response = await fetch('http://localhost:3000/api/blogs');
+        const response = await fetch(`${API_BASE_URL}/api/blogs`);
         const posts = await response.json();
 
         if (posts.length > 0) {

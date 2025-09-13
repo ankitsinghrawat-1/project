@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const eventsList = document.getElementById('events-list');
 
     try {
-        const response = await fetch('http://localhost:3000/api/events');
+        const response = await fetch(`${API_BASE_URL}/api/events`);
         const events = await response.json();
 
         eventsList.innerHTML = ''; // Clear the loading message

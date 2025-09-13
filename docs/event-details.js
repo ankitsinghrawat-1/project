@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fetchEventData = async () => {
         try {
             const [eventRes, attendeesRes, rsvpsRes] = await Promise.all([
-                fetch(`http://localhost:3000/api/events/${eventId}`),
-                fetch(`http://localhost:3000/api/events/${eventId}/attendees`),
-                loggedInUserEmail ? fetch(`http://localhost:3000/api/user/rsvps?email=${encodeURIComponent(loggedInUserEmail)}`) : Promise.resolve({ ok: false })
+                fetch(`${API_BASE_URL}/api/events/${eventId}`),
+                fetch(`${API_BASE_URL}/api/events/${eventId}/attendees`),
+                loggedInUserEmail ? fetch(`${API_BASE_URL}/api/user/rsvps?email=${encodeURIComponent(loggedInUserEmail)}`) : Promise.resolve({ ok: false })
             ]);
 
             if (!eventRes.ok) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (attendees.length > 0) {
                 attendeesHTML = attendees.map(attendee => `
                     <a href="view-profile.html?email=${attendee.email}" class="attendee-item">
-                        <img src="${attendee.profile_pic_url ? `http://localhost:3000/${attendee.profile_pic_url}` : 'https://via.placeholder.com/50'}" alt="${attendee.full_name}" class="attendee-pic">
+                        <img src="${attendee.profile_pic_url ? `${API_BASE_URL}/${attendee.profile_pic_url}` : 'https://via.placeholder.com/50'}" alt="${attendee.full_name}" class="attendee-pic">
                         <span>${attendee.full_name}</span>
                     </a>
                 `).join('');
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const method = isRsvpd ? 'DELETE' : 'POST';
             
             try {
-                const response = await fetch(`http://localhost:3000/api/events/${eventId}/rsvp`, {
+                const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/rsvp`, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: loggedInUserEmail })

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const messageDiv = document.getElementById('message');
 
     try {
-        const response = await fetch('http://localhost:3000/api/jobs');
+        const response = await fetch(`${API_BASE_URL}/api/jobs`);
         const jobs = await response.json();
 
         jobsGrid.innerHTML = ''; 

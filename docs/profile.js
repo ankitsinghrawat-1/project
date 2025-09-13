@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('degree').textContent = data.degree || 'Not set';
     
         if (data.profile_pic_url) {
-            profilePic.src = `http://localhost:3000/${data.profile_pic_url}`;
+            profilePic.src = `${API_BASE_URL}/${data.profile_pic_url}`;
         } else {
             profilePic.src = 'https://via.placeholder.com/150';
         }
@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`);
+            const response = await fetch(`${API_BASE_URL}/api/my-profile?email=${encodeURIComponent(userEmail)}`);
+
             const data = await response.json();
             if (response.ok) {
                 populateProfileData(data);
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPrivacySettings = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/privacy/${userEmail}`);
+            const response = await fetch(`${API_BASE_URL}/api/privacy/${userEmail}`);
             const settings = await response.json();
             if (response.ok) {
                 document.getElementById('is_profile_public').checked = settings.is_profile_public;
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.append('profile_picture', pfpUpload.files[0]);
         }
         try {
-            const response = await fetch(`http://localhost:3000/api/profile/${userEmail}`, {
+            const response = await fetch(`${API_BASE_URL}/api/profile/${userEmail}`, {
                 method: 'PUT',
                 body: formData
             });
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         
         try {
-            const response = await fetch(`http://localhost:3000/api/privacy/${userEmail}`, {
+            const response = await fetch(`${API_BASE_URL}/api/privacy/${userEmail}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings)
@@ -233,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/change-password`, {
+                const response = await fetch(`${API_BASE_URL}/api/change-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

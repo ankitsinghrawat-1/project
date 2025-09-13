@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchEventData = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/events/${eventId}`);
+            const response = await fetch(`${API_BASE_URL}/api/events/${eventId}`);
             if (!response.ok) throw new Error('Event not found');
             const event = await response.json();
             
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/events/${eventId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventData)
